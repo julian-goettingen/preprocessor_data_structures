@@ -13,12 +13,12 @@
 #define X_AT(i) x[X_assert(i>=0 && i<X_size,"i=" #i "is out of bounds for the stack of size " X_size), X_size]
 
 #define X_assert_fail(expr,msg) \
-    fprintf(stderr,"\n\n----> ppds ASSERTION FAILURE with the object X (declared in file: example.c, line 17)\n"),\
+    fprintf(stderr,"\n\n----> ppds ASSERTION FAILURE: %s <----\nwith the object X declared in file: example.c, line 17 of type STACK\n", msg),\
     fprintf(stderr,"detected in line %d, func %s, file %s\n",__LINE__,__func__,__FILE__),\
     fprintf(stderr, "object X defined by: size=X_size, maxsize=N, pointer=x\n"),\
-    fprintf(stderr, "hex dumps of values in preprocessor-object X:\n"), ERRPRINT_WILD(X_size), ERRPRINT_WILD(x), ERRPRINT_WILD(N),\
-    fprintf(stderr,msg),\
-    fprintf(stderr,"\n" #expr " evaluated to %d, exiting program.\n", expr),\
+    fprintf(stderr, "values of X:\n"), PRINT(X_size), PRINT(x), PRINT(N),\
+    PRINT_ARR(x,X_size),\
+    fprintf(stderr, #expr " evaluated to %d, exiting program.\n", expr),\
     exit(1)
 
 
@@ -37,12 +37,12 @@
 #define Y_AT(i) y[Y_assert(i>=0 && i<Y_size,"i=" #i "is out of bounds for the stack of size " Y_size), Y_size]
 
 #define Y_assert_fail(expr,msg) \
-    fprintf(stderr,"\n\n----> ppds ASSERTION FAILURE with the object Y (declared in file: example.c, line 28)\n"),\
+    fprintf(stderr,"\n\n----> ppds ASSERTION FAILURE: %s <----\nwith the object Y declared in file: example.c, line 28 of type STACK\n", msg),\
     fprintf(stderr,"detected in line %d, func %s, file %s\n",__LINE__,__func__,__FILE__),\
     fprintf(stderr, "object Y defined by: size=Y_size, maxsize=M, pointer=y\n"),\
-    fprintf(stderr, "hex dumps of values in preprocessor-object Y:\n"), ERRPRINT_WILD(Y_size), ERRPRINT_WILD(y), ERRPRINT_WILD(M),\
-    fprintf(stderr,msg),\
-    fprintf(stderr,"\n" #expr " evaluated to %d, exiting program.\n", expr),\
+    fprintf(stderr, "values of Y:\n"), PRINT(Y_size), PRINT(y), PRINT(M),\
+    PRINT_ARR(y,Y_size),\
+    fprintf(stderr, #expr " evaluated to %d, exiting program.\n", expr),\
     exit(1)
 
 

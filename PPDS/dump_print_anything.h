@@ -2,7 +2,7 @@
 // but if there is an alternative we should use that alternative
 
 
-#define PRINT(x) fprintf_wild(stderr,#x, &x, sizeof(x))
+#define PRINT(x) fprint_wild(stderr,#x, &x, sizeof(x))
 
 void fprint_wild(FILE *f, const char* name, const void *p, size_t size);
 void fprint_wild(FILE *f, const char* name, const void *p, size_t size) {
@@ -18,7 +18,7 @@ void fprint_wild(FILE *f, const char* name, const void *p, size_t size) {
 }
 
 
-#define PRINT_ARR(p,n) fprintf_wild_array(stderr, #p, p, n, p==NULL?-1:sizeof(p[0]))
+#define PRINT_ARR(p,n) fprint_wild_array(stderr, #p, p, n, p==NULL?-1:sizeof(p[0]))
 
 void fprint_wild_array(FILE *f, const char* name, const void *p, size_t n_elem, size_t element_size);
 void fprint_wild_array(FILE *f, const char* name, const void *p, size_t n_elem, size_t element_size) {
@@ -45,11 +45,11 @@ void fprint_wild_array(FILE *f, const char* name, const void *p, size_t n_elem, 
 
     if (show_all) {
         for (size_t i=0; i<n_elem; i++){
-            fprintf("(");
+            fprintf(f,"(");
             for (size_t j=0; j<element_size; j++){
-                fprintf(f, "%02x", p[i]);
+                fprintf(f, "%02x", c[i]);
             } 
-            fprintf(")");
+            fprintf(f,")");
         }
 
     }
@@ -61,26 +61,26 @@ void fprint_wild_array(FILE *f, const char* name, const void *p, size_t n_elem, 
 
         for (size_t i=0; i<n_elem; i++){
             if (i<n_show || n_elem-i-1<n_show){
-                fprintf("(");
+                fprintf(f,"(");
                 for (size_t j=0; j<element_size; j++){
-                    fprintf(f, "%02x", p[i]);
+                    fprintf(f, "%02x", c[i]);
                 } 
-                fprintf(")");
+                fprintf(f,")");
 
                 // we still loop the whole array which will often be useless but I dont care right now
-                all_zeroes &= (p[i]==0);
-                all_minus_ones &= (p[i]==(char)0xFF);
+                all_zeroes &= (c[i]==0);
+                all_ones &= (c[i]==(char)0xFF);
             }
             if (i==n_show){
-                fprintf(" ... ");
+                fprintf(f," ... ");
             }
         }
 
         if (all_zeroes) {
-            printf("entire memory is zeroed out\n")
+            printf("entire memory is zeroed out\n");
         }
         if (all_ones) {
-            printf("all bits are set to one\n")
+            printf("all bits are set to one\n");
         }
     }
     fprintf(f,")\n");

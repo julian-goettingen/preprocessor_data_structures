@@ -336,13 +336,13 @@
     void ***: "void ***",\
     default: "other")
 
-#define PRINT(x) printf("( "),\
-    printf(TYPE_NAME(x)),\
-    printf(" "),\
-    printf(#x),\
-    printf(" = "),\
-    printf(FORMATTER(x), x),\
-    printf(" )")
+#define PRINT(x) fprintf(stderr,"( "),\
+    fprintf(stderr,TYPE_NAME(x)),\
+    fprintf(stderr," "),\
+    fprintf(stderr,#x),\
+    fprintf(stderr," = "),\
+    fprintf(stderr,FORMATTER(x), x),\
+    fprintf(stderr," )")
 
 
 #define PRINT_ARRAY_ELEMENTS(x,n) ((void)_Generic((x),\
@@ -383,41 +383,41 @@
 /*inline*/ /*static*/ void unable_to_print_arr(const void * x, size_t n) {
     (void) x;
     (void) n;
-    printf("...unable to print array content. Unusual datatype?\n");
+    fprintf(stderr,"...unable to print array content. Unusual datatype?\n");
 }
 
 /*inline*/ /*static*/ void print_human_readable_number_desc(size_t value, size_t max_val, const char* desc){
     if (value == max_val) {
-        printf("ALL are ");
+        fprintf(stderr,"ALL are ");
     }
     else if (value == 0) {
-        printf("None are ");
+        fprintf(stderr,"None are ");
     }
     else {
-        printf("%zu/%zu are ", value, max_val);
+        fprintf(stderr,"%zu/%zu are ", value, max_val);
     }
-    fputs(desc, stdout); //fputs rather than printf avoids a warning with clang bc it considers the case where desc has format specifiers
-    printf("; ");
+    fputs(desc, stderr); //fputs rather than printf avoids a warning with clang bc it considers the case where desc has format specifiers
+    fprintf(stderr,"; ");
 }
 
 /*inline*/ /*static*/ void print_magnitude_summary(size_t n_positive, size_t n_zero, size_t n_negative, size_t n) {
     if (n_zero == n) {
-        printf("All values are zero");
+        fprintf(stderr,"All values are zero");
     }
     else if (n_positive == n) {
-        printf("All values are positive");
+        fprintf(stderr,"All values are positive");
     }
     else if (n_negative == n) {
-        printf("All values are negative");
+        fprintf(stderr,"All values are negative");
     }
     else if (n_negative + n_zero == n) {
-        printf("All values are non-positive (%zu are negative)", n_negative);
+        fprintf(stderr,"All values are non-positive (%zu are negative)", n_negative);
     }
     else if (n_positive + n_zero == n) {
-        printf("All values are non-negative (%zu are positive)", n_positive);
+        fprintf(stderr,"All values are non-negative (%zu are positive)", n_positive);
     }
     else {
-        printf("%zu are positive, %zu are zero, %zu are negative", n_positive, n_zero, n_negative);
+        fprintf(stderr,"%zu are positive, %zu are zero, %zu are negative", n_positive, n_zero, n_negative);
     }
 }
 
@@ -440,17 +440,17 @@
         float_type minval = x[0];\
         long double sum = 0;\
 \
-        printf("[");\
+        fprintf(stderr,"[");\
         for (size_t i=0; i<n; i++) {\
 \
             if (i<n_show || n-i-1<n_show) {\
-                printf("%lf",(double)x[i]);\
+                fprintf(stderr,"%lf",(double)x[i]);\
                 if (i!=n-1) {\
-                    printf(", ");\
+                    fprintf(stderr,", ");\
                 }\
             }\
             if (i==n_show) {\
-                printf(" ... ");\
+                fprintf(stderr," ... ");\
             }\
             \
             if (isnan(x[i])) n_nans++;\
@@ -463,25 +463,25 @@
             if (x[i] < minval) minval=x[i];\
             sum += x[i];\
         }\
-        printf("]\n");\
+        fprintf(stderr,"]\n");\
 \
         print_human_readable_number_desc(n_nans, n, "NaN");\
         print_human_readable_number_desc(n_finite, n, "finite");\
         print_human_readable_number_desc(n_normal, n, "normal");\
-        printf("\n");\
+        fprintf(stderr,"\n");\
         print_magnitude_summary(n_positive, n_zero, n_negative, n);\
-        printf("\nValues range from %lf to %lf with an average of %lf\n", (double)minval, (double)maxval, (double)(sum/n));\
+        fprintf(stderr,"\nValues range from %lf to %lf with an average of %lf\n", (double)minval, (double)maxval, (double)(sum/n));\
     }\
     else /* only a few values, just print all*/ {\
-        printf("[");\
+        fprintf(stderr,"[");\
         for (size_t i=0; i<n; i++) {\
 \
-            printf("%lf",(double)x[i]);\
+            fprintf(stderr,"%lf",(double)x[i]);\
             if (i!=n-1) {\
-                printf(", ");\
+                fprintf(stderr,", ");\
             }\
         } \
-        printf("]\n");\
+        fprintf(stderr,"]\n");\
     }\
 }\
 
@@ -511,16 +511,16 @@ DEFINE_FLOATY_PRINT_ARR(print_float_arr, float);
         double high = int_max/2;\
         double low = int_min/2;\
 \
-        printf("[");\
+        fprintf(stderr,"[");\
         for (size_t i=0; i<n; i++) {\
             if (i<n_show || n-i-1<n_show) {\
-                printf("%lld",(long long)x[i]);\
+                fprintf(stderr,"%lld",(long long)x[i]);\
                 if (i!=n-1) {\
-                    printf(", ");\
+                    fprintf(stderr,", ");\
                 }\
             }\
             if (i==n_show) {\
-                printf(" ... ");\
+                fprintf(stderr," ... ");\
             }\
 \
             if (x[i] > 0) n_positive++;\
@@ -534,33 +534,33 @@ DEFINE_FLOATY_PRINT_ARR(print_float_arr, float);
             sum += x[i];\
         }\
 \
-        printf("]\n");\
+        fprintf(stderr,"]\n");\
         if (n_minus_one > 0) {\
             print_human_readable_number_desc(n_minus_one, n, "-1");\
-            printf("\n");\
+            fprintf(stderr,"\n");\
         }\
         print_magnitude_summary(n_positive, n_zero, n_negative, n);\
         if (n_high+n_low > 0) {\
-            printf("consider danger of overflow? --> ");\
+            fprintf(stderr,"consider danger of overflow? --> ");\
             print_human_readable_number_desc(n_high, n, "> dtype_max_value/2");\
             print_human_readable_number_desc(n_low, n, "< dtype_min_value/2");\
-            printf("\n");\
+            fprintf(stderr,"\n");\
         }\
         else {\
-            printf("all values in range [dtype_min_value/2, dtype_max_value/2]'\n");\
+            fprintf(stderr,"all values in range [dtype_min_value/2, dtype_max_value/2]'\n");\
         }\
-        printf("\nValues range from %lf to %lf with an average of %lf\n", (double)minval, (double)maxval, (double)(sum/n));\
+        fprintf(stderr,"\nValues range from %lf to %lf with an average of %lf\n", (double)minval, (double)maxval, (double)(sum/n));\
     }\
     else /* only a few values, just print all*/ {\
-        printf("[");\
+        fprintf(stderr,"[");\
         for (size_t i=0; i<n; i++) {\
 \
-            printf("%lld",(long long)x[i]);\
+            fprintf(stderr,"%lld",(long long)x[i]);\
             if (i!=n-1) {\
-                printf(", ");\
+                fprintf(stderr,", ");\
             }\
         } \
-        printf("]\n");\
+        fprintf(stderr,"]\n");\
     }\
 }
 
@@ -589,16 +589,16 @@ DEFINE_SIGNED_PRINT_ARR(print_signed_char_arr, signed char, SCHAR_MAX, SCHAR_MIN
         long double sum = 0;\
         double high = uint_max/2;\
 \
-        printf("[");\
+        fprintf(stderr,"[");\
         for (size_t i=0; i<n; i++) {\
             if (i<n_show || n-i-1<n_show) {\
-                printf("%lld",(unsigned long long)x[i]);\
+                fprintf(stderr,"%lld",(unsigned long long)x[i]);\
                 if (i!=n-1) {\
-                    printf(", ");\
+                    fprintf(stderr,", ");\
                 }\
             }\
             if (i==n_show) {\
-                printf(" ... ");\
+                fprintf(stderr," ... ");\
             }\
 \
             if (x[i] > 0) n_positive++;\
@@ -610,42 +610,42 @@ DEFINE_SIGNED_PRINT_ARR(print_signed_char_arr, signed char, SCHAR_MAX, SCHAR_MIN
             sum += x[i];\
         }\
 \
-        printf("]\n");\
+        fprintf(stderr,"]\n");\
         if (n_uint_max > 0) {\
             print_human_readable_number_desc(n_uint_max , n, "Maximum value for the uint-type");\
-            printf("\n");\
+            fprintf(stderr,"\n");\
         }\
         print_human_readable_number_desc(n_high, n, "higher than dtype_max_value/2");\
         if (n_zero == n){\
-            printf("all values are zero");\
+            fprintf(stderr,"all values are zero");\
         }\
         else if (n_positive == n){\
-            printf("all values are >0");\
+            fprintf(stderr,"all values are >0");\
         }\
         else {\
-            printf("%zu positive values, %zu zeroes", n_positive, n_zero);\
+            fprintf(stderr,"%zu positive values, %zu zeroes", n_positive, n_zero);\
         }\
-        printf("\n");\
+        fprintf(stderr,"\n");\
         if (n_high > 0) {\
-            printf("consider danger of overflow? --> ");\
+            fprintf(stderr,"consider danger of overflow? --> ");\
             print_human_readable_number_desc(n_high, n, "> dtype_max_value/2");\
-            printf("\n");\
+            fprintf(stderr,"\n");\
         }\
         else {\
-            printf("all values in range [0, dtype_max_value/2]'\n");\
+            fprintf(stderr,"all values in range [0, dtype_max_value/2]'\n");\
         }\
-        printf("\nValues range from %lf to %lf with an average of %lf\n", (double)minval, (double)maxval, (double)(sum/n));\
+        fprintf(stderr,"\nValues range from %lf to %lf with an average of %lf\n", (double)minval, (double)maxval, (double)(sum/n));\
     }\
     else /* only a few values, just print all*/ {\
-        printf("[");\
+        fprintf(stderr,"[");\
         for (size_t i=0; i<n; i++) {\
 \
-            printf("%lld",(long long)x[i]);\
+            fprintf(stderr,"%lld",(long long)x[i]);\
             if (i!=n-1) {\
-                printf(", ");\
+                fprintf(stderr,", ");\
             }\
         } \
-        printf("]\n");\
+        fprintf(stderr,"]\n");\
     }\
 }
 
@@ -658,25 +658,24 @@ DEFINE_UNSIGNED_PRINT_ARR(print_unsigned_char_arr, unsigned char, UCHAR_MAX);
 // this unfortunately has the PRINT-macro copied into it,
 // this is necessary so that #x, #n expands to the argument-name of PRINT_ARR, not to "x" or "n"
 #define PRINT_ARR(x,n) \
-    printf("( "),\
-    printf(TYPE_NAME(x)),\
-    printf(" "),\
-    printf(#x),\
-    printf(" = "),\
-    printf(FORMATTER(x), x),\
-    printf(" )"),\
-    printf(" is an array of size "),\
-    printf("( "),\
-    printf(TYPE_NAME(n)),\
-    printf(" "),\
-    printf(#n),\
-    printf(" = "),\
-    printf(FORMATTER(n), n),\
-    printf(" )"),\
-    printf(" content: \n (element type: "),\
-    printf(TYPE_NAME(x[0])),\
-    printf(") "),\
+    fprintf(stderr,"( "),\
+    fprintf(stderr,TYPE_NAME(x)),\
+    fprintf(stderr," "),\
+    fprintf(stderr,#x),\
+    fprintf(stderr," = "),\
+    fprintf(stderr,FORMATTER(x), x),\
+    fprintf(stderr," )"),\
+    fprintf(stderr," is an array of size "),\
+    fprintf(stderr,"( "),\
+    fprintf(stderr,TYPE_NAME(n)),\
+    fprintf(stderr," "),\
+    fprintf(stderr,#n),\
+    fprintf(stderr," = "),\
+    fprintf(stderr,FORMATTER(n), n),\
+    fprintf(stderr," )"),\
+    fprintf(stderr," content: \n (element type: "),\
+    fprintf(stderr,TYPE_NAME(x[0])),\
+    fprintf(stderr,") "),\
     PRINT_ARRAY_ELEMENTS(x,n)
-
 
 
