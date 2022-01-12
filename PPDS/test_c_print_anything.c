@@ -1,4 +1,5 @@
-#include "c11_print_anything.h"
+#define CXX_PRINT
+#include "print_anything.h"
 #include<stdlib.h>
 
 #define ZSIZE 50
@@ -25,7 +26,7 @@ int main() {
     printf("\n");
     
     int ny = 50;
-    float * y = malloc(sizeof(double)*ny);
+    double * y = (double*)malloc(sizeof(double)*ny);
     y[10] = 5;
     PRINT_ARR(y,ny);
     printf("\n");

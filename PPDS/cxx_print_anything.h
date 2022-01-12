@@ -4,7 +4,7 @@
 
 #define PRINT(x) (std::cerr << "(" << abi::__cxa_demangle(typeid(x).name(),NULL,NULL,NULL) << " " << #x << " = " << (x) << ")" << std::endl)
 
-#define PRINT_ARR(x,n) (PRINT(x), std::cerr << " is an array of size ", PRINT(n), print_elements(x,n))
+#define PRINT_ARR(x,n) (std::cerr << "(" << abi::__cxa_demangle(typeid(x).name(),NULL,NULL,NULL) << " " << #x << " = " << (x) << ") is an array-like of size (" << abi::__cxa_demangle(typeid(n).name(),NULL,NULL,NULL) << " " << #n << " = " << (n) << ")" << std::endl, print_elements(x,n))
 
 
 template<typename T, typename N>
