@@ -1,6 +1,12 @@
+#ifdef __cplusplus
+#error cannot compile these C11-PRINT-macros with a c++ compiler, choose a different print method like None, CXX or dump
+#include <this compilation stop saves you from many lines of error messages>
+#endif
+
 #include <stdio.h>
 #include <math.h>
 #include <limits.h>
+#include <stdbool.h>
 
 // draws inspiration and code from http://www.robertgamble.net/2012/01/c11-generic-selections.html
 

@@ -7,7 +7,7 @@
 //#define FORCE_DUMP_PRINT
 //#define AUTO_PRINT
 
-#define DUMP_PRINT
+#define CXX_PRINT
 #include "print_anything.h"
 
 
@@ -27,8 +27,9 @@
 #define {{name}}_AT(i) {{pointer}}[{{name}}_assert(i>=0 && i<{{size}},"i=" #i "is out of bounds for the stack of size " {{size}}), {{size}}]
 
 #define {{name}}_assert_fail(expr,msg) \
-    fprintf(stderr,"\n\n----> ppds ASSERTION FAILURE: %s <----\nwith the object {{name}} declared in {{declare_site}} of type STACK\n", msg),\
+    fprintf(stderr,"\n\n----> ppds ASSERTION FAILURE: %s <----\n", msg),\
     fprintf(stderr,"detected in line %d, func %s, file %s\n",__LINE__,__func__,__FILE__),\
+    fprintf(stderr, "with the object {{name}} declared in {{declare_site}} of type STACK\n"),\
     fprintf(stderr, "object {{name}} defined by: size={{size}}, maxsize={{maxsize}}, pointer={{pointer}}\n"),\
     fprintf(stderr, "values of {{name}}:\n"), PRINT({{size}}), PRINT({{pointer}}), PRINT({{maxsize}}),\
     PRINT_ARR({{pointer}},{{size}}),\

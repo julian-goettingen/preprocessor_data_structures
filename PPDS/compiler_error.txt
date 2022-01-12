@@ -1,0 +1,10 @@
+In file included from print_anything.h:2,
+                 from PPDS_STACK_SOURCE.h:11,
+                 from example.c:1:
+c11_print_anything.h:2:2: error: #error "cannot compile these print functions with a c++ compiler"
+    2 | #error "cannot compile these print functions with a c++ compiler"
+      |  ^~~~~
+c11_print_anything.h:3:10: fatal error: this compilation stop saves you from many lines of error messages: No such file or directory
+    3 | #include <this compilation stop saves you from many lines of error messages>
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.

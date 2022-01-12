@@ -4,10 +4,11 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#define M 10
+#define N 20
 
 int main(){
-    int N = 10;
-    int M = 20;
+
 
     // a comment
 

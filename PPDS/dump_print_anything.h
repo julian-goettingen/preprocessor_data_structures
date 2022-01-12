@@ -18,7 +18,7 @@ void fprint_wild(FILE *f, const char* name, const void *p, size_t size) {
 }
 
 
-#define PRINT_ARR(p,n) fprint_wild_array(stderr, #p, p, n, p==NULL?-1:sizeof(p[0]))
+#define PRINT_ARR(p,n) fprint_wild_array(stderr, #p, p, n, p==NULL && n>0?-1:sizeof(p[0]))
 
 void fprint_wild_array(FILE *f, const char* name, const void *p, size_t n_elem, size_t element_size);
 void fprint_wild_array(FILE *f, const char* name, const void *p, size_t n_elem, size_t element_size) {
