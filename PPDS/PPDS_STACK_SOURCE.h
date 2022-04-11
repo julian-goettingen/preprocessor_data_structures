@@ -2,12 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//#define FORCE_C11_PRINT
+#define FORCE_CXX_PRINT 1
 //#define FORCE_CXX_PRINT
 //#define FORCE_DUMP_PRINT
 //#define AUTO_PRINT
-
-#define CXX_PRINT
 #include "print_anything.h"
 
 
