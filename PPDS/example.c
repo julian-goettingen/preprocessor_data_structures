@@ -1,5 +1,4 @@
-#include "PPDS_STACK_SOURCE.h"
-#include "PPDS_STACK_TARGET_example.h"
+#include "PPDS_SOURCE_STACK.h"
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -7,6 +6,8 @@
 #define M 10
 #define N 20
 
+
+#include "PPDS_DEF_1.h"
 int main(){
 
 
@@ -41,3 +42,4 @@ int main(){
     free(x); x=NULL; 
 
 }
+#include "PPDS_UNDEF_1.h"

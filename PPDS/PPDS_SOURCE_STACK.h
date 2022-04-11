@@ -8,9 +8,33 @@
 //#define AUTO_PRINT
 #include "print_anything.h"
 
+// A PPDS_SOURCE header has 4 parts:
+// the normal c/cpp-style header, that defines one special macro: PPDS_DECLARE_<name>(args)
+// the PPDS_DECLARE-macro has positional must-have arguments and after that optional keyword-arguments
+// PPDS_KW_DEFAULTS defines all possible keyword-arguments with their default values
+// note that everything is a string
+// example: PPDS_DECLARE_THING(AC,nx,ny,8,bound_check=1)
+// 
+// For each DECLARE, the templates PPDS_DEF and PPDS_UNDEF get instantiated with the following arguments:
+// declare_site: a human-readable description of where the DECLARE happened
+// args: the positional must-have args as a list
+// kwargs: an object containing all optional keyword-arguments: either the default-value or the declared value
+// jinja-tipps:
+// kwargs values can be accessed with dot-notation: kwargs.value
+// args values can be accessed by unpacking and putting into names: name, pointer, nx,ny,nz = args
+//
 
-/* PPDS_SOURCE
+
+// the notation of the keyword-defaults is yaml, though there is no nesting
+/* PPDS_KW_DEFAULTS:
+bounds_check_cond: 1
+# yaml has comments like this
+*/
+
+// this gets put into the 
+/* PPDS_DEF:
 {% set name, pointer, maxsize = args %}
+{% set bounds_check_cond
 {% set declare_site = declare_site %}
 {% set size = name + "_size" %}
 
@@ -35,6 +59,14 @@
     exit(1)
 
 */
-
+/* PPDS_UNDEF:
+{% set name, pointer, maxsize = args}
+#undef {{name}}_assert
+#undef {{name}}_PUSH
+#undef {{name}}_POP
+#undef {{name}}_AT
+#undef {{name}}_assert_fail
+*/
 
 #define PPDS_DECLARE_STACK(name, pointer, maxsize) typeof(maxsize) name##_size = 0
+

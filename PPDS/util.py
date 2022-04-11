@@ -68,3 +68,5 @@ def preprocess_raw_args(raw_args):
 def header_from_template(template_str, args, declare_site):
     print(args)
     return template_str.render(args=args,declare_site=declare_site)+"\n\n"
+
+
