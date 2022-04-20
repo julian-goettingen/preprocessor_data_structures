@@ -11,42 +11,49 @@
 // A PPDS_SOURCE header has 4 parts:
 // the normal c/cpp-style header, that defines one special macro: PPDS_DECLARE_<name>(args)
 // the PPDS_DECLARE-macro has positional must-have arguments and after that optional keyword-arguments
-// PPDS_KW_DEFAULTS defines all possible keyword-arguments with their default values
-// note that everything is a string
+// PPDS_ARGS defines the positional arguments and all possible keyword-arguments with their default values in json format
+// this defines a constructor like:
 // example: PPDS_DECLARE_THING(AC,nx,ny,8,bound_check=1)
 // 
 // For each DECLARE, the templates PPDS_DEF and PPDS_UNDEF get instantiated with the following arguments:
 // declare_site: a human-readable description of where the DECLARE happened
 // args: the positional must-have args as a list
 // kwargs: an object containing all optional keyword-arguments: either the default-value or the declared value
-// jinja-tipps:
+// in the jinja-headers, the args can be accessed:
 // kwargs values can be accessed with dot-notation: kwargs.value
-// args values can be accessed by unpacking and putting into names: name, pointer, nx,ny,nz = args
-//
+// args values can be accessed directly by their name.
+// declare_site can be accessed directly
 
 
-// the notation of the keyword-defaults is yaml, though there is no nesting
-/* PPDS_KW_DEFAULTS:
-bounds_check_cond: 1
-# yaml has comments like this
+// the notation of the keyword-defaults is json, but  there must be exactly these keys:
+// args mapping to an (ordered) list of names,
+// kwargs mapping to a dict of names and default values
+/* PPDS_ARGS:
+{
+"args": ["name", "pointer", "maxsize"],
+"kwargs": {"debug_mode": "DEBUG"}
+}
 */
 
 // this gets put into the 
 /* PPDS_DEF:
-{% set name, pointer, maxsize = args %}
-{% set bounds_check_cond
-{% set declare_site = declare_site %}
 {% set size = name + "_size" %}
 
-
+#if debug_mode != 0
 #define {{name}}_assert(expr,msg) (void)(expr?(void)0:({{name}}_assert_fail(expr,msg)))
+#else
+#define {{name}}_assert(expr,msg) ((void)0)
+#endif
 
-
-#define {{name}}_PUSH(elem) do{ {{pointer}}[{{name}}_assert({{size}}<{{maxsize}},"max size reached, cant push more items"), {{size}}++] = (elem);}while(0)
 
 #define {{name}}_POP() {{pointer}}[{{name}}_assert({{size}}>0,"cant pop from empty stack"), --{{size}}]
 
 #define {{name}}_AT(i) {{pointer}}[{{name}}_assert(i>=0 && i<{{size}},"i=" #i "is out of bounds for the stack of size " {{size}}), {{size}}]
+
+#define {{name}}_PUSH(elem) do{ {{pointer}}[{{name}}_assert({{size}}<{{maxsize}},"max size reached, cant push more items"), {{size}}++] = (elem);}while(0)
+
+#define 
+
 
 #define {{name}}_assert_fail(expr,msg) \
     fprintf(stderr,"\n\n----> ppds ASSERTION FAILURE: %s <----\n", msg),\
