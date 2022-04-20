@@ -1,4 +1,6 @@
 import re
+import jinja2
+import json
 
 
 # modified from:
@@ -24,7 +26,41 @@ def get_template_from_source(source_filename):
     with open(source_filename, "r") as f:
         template = re.search(template_getter_rex, f.read())
 
-    return template.group(1) 
+    return template.group(1)
+
+DEF_GETTER_REX = re.compile("/\*\s+PPDS_DEF:\s+(.*?)\*/", re.MULTILINE|re.DOTALL)
+UNDEF_GETTER_REX = re.compile("/\*\s+PPDS_UNDEF:\s+(.*?)\*/", re.MULTILINE|re.DOTALL)
+ARGS_GETTER_REX = re.compile("/\*\s+PPDS_ARGS:\s+(.*?)\*/", re.MULTILINE|re.DOTALL)
+
+# TODO: better error handling
+# idea: make line numbers in source-file match linenumbers in source_string
+def get_def_template_from_source_string(source_string):
+    template = re.search(DEF_GETTER_REX, source_string)
+    return jinja2.Template(template.group(1))
+
+def get_undef_template_from_source_string(source_string):
+    template = re.search(UNDEF_GETTER_REX, source_string)
+    return jinja2.Template(template.group(1))
+
+def get_args_from_source_string(source_string):
+    raw_args = json.loads(re.search(ARGS_GETTER_REX, source_string).group(1))
+
+    #TODO: better error messages
+    err_msg = str(raw_args)+" is not valid as args"
+
+    #validate
+    if not isinstance(raw_args, dict):
+        raise ValueError(err_msg)
+    if set(raw_args.keys()) != {"args", "kwargs"}:
+        raise ValueError(err_msg)
+
+    args = list(raw_args["args"])
+    kwargs = dict(raw_args["kwargs"])
+
+    return args, kwargs
+
+
+
 
 def split_smart(s):
 
@@ -60,7 +96,7 @@ def preprocess_raw_args(raw_args):
     if not m:
         print("Syntax Error")
         exit(1)
-        
+
     args = split_smart(m.groups()[0])
     return args
 
@@ -68,5 +104,3 @@ def preprocess_raw_args(raw_args):
 def header_from_template(template_str, args, declare_site):
     print(args)
     return template_str.render(args=args,declare_site=declare_site)+"\n\n"
-
-

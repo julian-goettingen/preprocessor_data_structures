@@ -35,7 +35,6 @@
 }
 */
 
-// this gets put into the 
 /* PPDS_DEF:
 {% set size = name + "_size" %}
 
@@ -52,8 +51,6 @@
 
 #define {{name}}_PUSH(elem) do{ {{pointer}}[{{name}}_assert({{size}}<{{maxsize}},"max size reached, cant push more items"), {{size}}++] = (elem);}while(0)
 
-#define 
-
 
 #define {{name}}_assert_fail(expr,msg) \
     fprintf(stderr,"\n\n----> ppds ASSERTION FAILURE: %s <----\n", msg),\
@@ -67,7 +64,7 @@
 
 */
 /* PPDS_UNDEF:
-{% set name, pointer, maxsize = args}
+{% set name, pointer, maxsize = args%}
 #undef {{name}}_assert
 #undef {{name}}_PUSH
 #undef {{name}}_POP
