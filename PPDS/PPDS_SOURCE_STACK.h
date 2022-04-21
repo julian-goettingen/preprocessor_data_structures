@@ -31,17 +31,17 @@
 /* PPDS_ARGS:
 {
 "args": ["name", "pointer", "maxsize"],
-"kwargs": {"debug_mode": "DEBUG"}
+"kwargs": {"skip_checks": "NDEBUG"}
 }
 */
 
 /* PPDS_DEF:
 {% set size = name + "_size" %}
 
-#if debug_mode != 0
-#define {{name}}_assert(expr,msg) (void)(expr?(void)0:({{name}}_assert_fail(expr,msg)))
-#else
+#if {{skip_checks}} != 0
 #define {{name}}_assert(expr,msg) ((void)0)
+#else
+#define {{name}}_assert(expr,msg) (void)(expr?(void)0:({{name}}_assert_fail(expr,msg)))
 #endif
 
 
@@ -64,7 +64,6 @@
 
 */
 /* PPDS_UNDEF:
-{% set name, pointer, maxsize = args%}
 #undef {{name}}_assert
 #undef {{name}}_PUSH
 #undef {{name}}_POP
@@ -72,5 +71,5 @@
 #undef {{name}}_assert_fail
 */
 
-#define PPDS_DECLARE_STACK(name, pointer, maxsize) typeof(maxsize) name##_size = 0
+#define PPDS_DECLARE_STACK(name, pointer, maxsize, ...) typeof(maxsize) name##_size = 0
 

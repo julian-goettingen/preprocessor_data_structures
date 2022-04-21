@@ -101,6 +101,5 @@ def preprocess_raw_args(raw_args):
     return args
 
 
-def header_from_template(template_str, args, declare_site):
-    print(args)
-    return template_str.render(args=args,declare_site=declare_site)+"\n\n"
+def header_from_template(template_str, argdict, declare_site):
+    return template_str.render(**argdict,declare_site=declare_site)+"\n\n"
