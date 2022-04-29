@@ -25,6 +25,7 @@ def expect_failure(sp_res, *msgs):
     assert sp_res.returncode != 0
 
     for m in msgs:
+        m = m.encode("UTF-8")
         assert m in sp_res.stderr
 
 
@@ -49,4 +50,4 @@ def should_fail():
     expect_success(res)
 
     res = run_process("./a.out")
-    expect_failure(res, "ASSERTION ERROR")
+    expect_failure(res, "ASSERTION FAILURE")
