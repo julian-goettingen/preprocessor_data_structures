@@ -36,11 +36,11 @@ ARGS_GETTER_REX = re.compile("/\*\s+PPDS_ARGS:\s+(.*?)\*/", re.MULTILINE|re.DOTA
 # idea: make line numbers in source-file match linenumbers in source_string
 def get_def_template_from_source_string(source_string):
     template = re.search(DEF_GETTER_REX, source_string)
-    return jinja2.Template(template.group(1))
+    return jinja2.Template(template.group(1), undefined=jinja2.StrictUndefined)
 
 def get_undef_template_from_source_string(source_string):
     template = re.search(UNDEF_GETTER_REX, source_string)
-    return jinja2.Template(template.group(1))
+    return jinja2.Template(template.group(1), undefined=jinja2.StrictUndefined)
 
 def get_args_from_source_string(source_string):
     raw_args = json.loads(re.search(ARGS_GETTER_REX, source_string).group(1))
