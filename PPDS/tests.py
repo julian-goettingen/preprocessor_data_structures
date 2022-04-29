@@ -10,3 +10,8 @@ def test_can_compile():
 
 
     tut.should_pass()
+
+
+def test_fail():
+
+    tut.should_fail()
