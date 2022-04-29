@@ -20,7 +20,7 @@ int main(){
 
 	for (int i=0; i<nx; i++){
 		for (int j=0; j<ny; j++){
-			X(i,j) = i;
+			X(i,j) = i+j;
 		}
 	}
 

@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define FORCE_CXX_PRINT 1
-//#define FORCE_CXX_PRINT
+//#define FORCE_CXX_PRINT 1
+#define FORCE_C11_PRINT 1
 //#define FORCE_DUMP_PRINT
 //#define AUTO_PRINT
 #include "print_anything.h"
@@ -18,6 +18,12 @@
 
 /* PPDS_DEF:
 
+
+// public:
+#define {{name}}(i, j) {{pointer}}[{{name}}_assert_in_bounds(i,j,#i,#j), i*{{nx}} + j]
+
+
+// internal:
 #if {{skip_checks}} != 0
 
 #define {{name}}_assert_with_index(expr,msg, idx_val, idx_name) ((void)0)
@@ -35,8 +41,6 @@
 
 #endif //skip_checks
 
-
-#define {{name}}(i, j) {{pointer}}[{{name}}_assert_in_bounds(i,j,#i,#j), i*{{nx}} + j]
 
 #define {{name}}_assert_fail_with_index(expr,msg,idx_val,idx_name) \
 	fprintf(stderr,"\n\n----> ppds ASSERTION FAILURE: %s <----\n", msg),\
