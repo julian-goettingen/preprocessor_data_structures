@@ -6,7 +6,7 @@ detected in line 29, func main, file tests/should_fail/array_example.c
 with the object X declared in file: tests/should_fail/array_example.c, line 12 of type ARR2D
 object X defined by: pointer=x, nx=nx, ny=ny
 values of X:
-( int * x = 0xd462a0 )( int nx = 3 )( int ny = 40 )( int * x = 0xd462a0 ) is an array of size ( int nx*ny = 120 ) content: 
+( int * x = 0x78c2a0 )( int nx = 3 )( int ny = 40 )( int * x = 0x78c2a0 ) is an array of size ( int nx*ny = 120 ) content: 
  (element type: int) [0, 1, 2, 1, 2, 3,  ... 0, 0, 0, 0, 0, 0]
 All values are non-negative (45 are positive)all values in range [dtype_min_value/2, dtype_max_value/2]'
 Values range from 0.000000 to 41.000000 with an average of 7.241667
