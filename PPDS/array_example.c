@@ -26,6 +26,8 @@ int main(){
 
 	printf("%d\n", X(2,39));
 
+	printf("%d\n", X(3,30));
+
 }
 
 

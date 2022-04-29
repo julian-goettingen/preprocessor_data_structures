@@ -476,7 +476,7 @@
         print_human_readable_number_desc(n_normal, n, "normal");\
         fprintf(stderr,"\n");\
         print_magnitude_summary(n_positive, n_zero, n_negative, n);\
-        fprintf(stderr,"\nValues range from %lf to %lf with an average of %lf\n", (double)minval, (double)maxval, (double)(sum/n));\
+        fprintf(stderr,"Values range from %lf to %lf with an average of %lf\n", (double)minval, (double)maxval, (double)(sum/n));\
     }\
     else /* only a few values, just print all*/ {\
         fprintf(stderr,"[");\
@@ -555,7 +555,7 @@ DEFINE_FLOATY_PRINT_ARR(print_float_arr, float);
         else {\
             fprintf(stderr,"all values in range [dtype_min_value/2, dtype_max_value/2]'\n");\
         }\
-        fprintf(stderr,"\nValues range from %lf to %lf with an average of %lf\n", (double)minval, (double)maxval, (double)(sum/n));\
+        fprintf(stderr,"Values range from %lf to %lf with an average of %lf\n", (double)minval, (double)maxval, (double)(sum/n));\
     }\
     else /* only a few values, just print all*/ {\
         fprintf(stderr,"[");\
@@ -640,7 +640,7 @@ DEFINE_SIGNED_PRINT_ARR(print_signed_char_arr, signed char, SCHAR_MAX, SCHAR_MIN
         else {\
             fprintf(stderr,"all values in range [0, dtype_max_value/2]'\n");\
         }\
-        fprintf(stderr,"\nValues range from %lf to %lf with an average of %lf\n", (double)minval, (double)maxval, (double)(sum/n));\
+        fprintf(stderr,"Values range from %lf to %lf with an average of %lf\n", (double)minval, (double)maxval, (double)(sum/n));\
     }\
     else /* only a few values, just print all*/ {\
         fprintf(stderr,"[");\
