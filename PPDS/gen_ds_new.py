@@ -165,17 +165,17 @@ class PreprocessorDataClass():
         # do positional arguments first
         for i, (arg, argname) in enumerate(zip(arglist, self.posargs)):
 
-            if not is_valid_pos_arg(arg):
-                raise ValueError("positional args error")
-            argdict[argname] = arg
+            val = extract_valid_pos_arg(arg)
+            argdict[argname] = val
 
         print(argdict)
         # iterate through the rest of arglist to get the keyword-args
         for arg in arglist[i+1:]:
             print(arg)
             argname, val = extract_valid_kw_arg(arg)
-            if argname not in argdict:
-                raise ValueError(f"{argname} is not a valid keyword-argument")
+            print(self.kwargs.keys())
+            if argname not in self.kwargs:
+                raise ValueError(f"{argname} is not a valid keyword-argument. Must be one of {list(self.kwargs.keys())}")
             argdict[argname] = val
 
         return argdict
@@ -200,6 +200,7 @@ class PreprocessorDataClass():
                 undefstack.push(
                 PPDSDefTargetHeaderFile(f"PPDS_UNDEF_{m.group(1)}.h")
                 )
+                print("new def header")
                 print(defstack)
                 continue
 
@@ -217,6 +218,7 @@ class PreprocessorDataClass():
                     # LOGTODO
                     raise ValueError("closing wrong scope!")
 
+                print("new undef header")
                 print(defstack)
                 continue
 
@@ -227,6 +229,7 @@ class PreprocessorDataClass():
                 argdict = self.parse_args(args)
                 declare_site = f"file: {filename}, line {line_no}"
 
+                # TODO: use strict undefined for jinja
                 extradef = util.header_from_template(self.def_template, argdict, declare_site=declare_site)
                 extraundef = util.header_from_template(self.undef_template, argdict, declare_site=declare_site)
 
@@ -240,10 +243,12 @@ class PreprocessorDataClass():
 
 # TODO: handle == and possibly even =-assignment in brackets
 # both this function and the one for keywords dont allow == sign in values
-def is_valid_pos_arg(s):
+def extract_valid_pos_arg(s):
 
-    if "=" not in s:
-        return True
+    if "=" in s and "==" not in s:
+        raise ValueError(f"positional args error: {s} is not a proper positional argument")
+
+    return s.strip()
 
 def extract_valid_kw_arg(s):
 
@@ -255,11 +260,12 @@ def extract_valid_kw_arg(s):
 
     name, val = byeq
 
-    return name, val
+    return name.strip(), "("+val.strip()+")"
 
 
-# argparsing late   r
-files = ["example.c"]
+# proper argparsing later
+files = sys.argv
+print("doing files: ", files)
 
 for filename in files:
 
