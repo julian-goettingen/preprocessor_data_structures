@@ -1,5 +1,7 @@
 import subprocess
 import io
+from enum import IntEnum
+import os.path
 
 
 def run_process(cmd):
@@ -24,30 +26,49 @@ def expect_failure(sp_res, *msgs):
 
     assert sp_res.returncode != 0
 
+    err_ci = str(sp_res.stderr).upper()
+
     for m in msgs:
-        m = m.encode("UTF-8")
-        assert m in sp_res.stderr
+        m = m.upper()
+        assert m in err_ci
 
+class DirResult(IntEnum):
 
-def should_pass():
+    ppds_error = 1
+    compile_error = 2
+    runtime_error = 3
+    no_error = 4
 
-    res = run_process("python3 gen_ds_new.py tests/should_pass/array_example.c")
+def try_dir(dir, expected_result, msgs=[], compiler="gcc"):
+
+    main_path = os.path.join(dir, "main.c")
+
+    # ppds-step
+    res = run_process(f"python3 gen_ds_new.py {main_path}")
+    if expected_result == DirResult.ppds_error:
+        expect_failure(res,*msgs)
+        return
     expect_success(res)
 
-    res = run_process("clang -DNDEBUG=1 -Wall tests/should_pass/array_example.c -Ippds_source_headers -Ippds_target_headers")
+    # compile-step
+    res = run_process(f"{compiler} -DNDEBUG=1 -Wall {main_path} -Ippds_source_headers -Ippds_target_headers" )
+    if expected_result == DirResult.compile_error:
+        expect_failure(res,*msgs)
+        return
     expect_success(res)
 
+    # run-step
     res = run_process("./a.out")
+    if expected_result == DirResult.runtime_error:
+        expect_failure(res,*msgs)
+        return
     expect_success(res)
 
 
-def should_fail():
+def should_pass(compiler):
 
-    res = run_process("python3 gen_ds_new.py tests/should_fail/array_example.c")
-    expect_success(res)
+    try_dir("tests/should_pass", DirResult.no_error, compiler)
 
-    res = run_process("clang -DNDEBUG=1 -Wall tests/should_fail/array_example.c -Ippds_source_headers -Ippds_target_headers")
-    expect_success(res)
+def should_fail(compiler):
 
-    res = run_process("./a.out")
-    expect_failure(res, "ASSERTION FAILURE")
+    try_dir("tests/should_fail", DirResult.runtime_error, ["ASSERTION FAILURE", "OUT OF BOUNDS"], compiler)

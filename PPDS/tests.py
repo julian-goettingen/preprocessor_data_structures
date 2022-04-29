@@ -1,17 +1,16 @@
 import utils_for_testing as tut
+import pytest
+
+parametrize = pytest.mark.parametrize
 
 
-def test_passing():
+@parametrize("compiler", ["gcc", "clang"])
+def test_can_compile(compiler):
 
-    assert True
-
-
-def test_can_compile():
+    tut.should_pass(compiler)
 
 
-    tut.should_pass()
+@parametrize("compiler", ["gcc", "clang"])
+def test_fail(compiler):
 
-
-def test_fail():
-
-    tut.should_fail()
+    tut.should_fail(compiler)
