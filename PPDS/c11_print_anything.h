@@ -514,8 +514,8 @@ DEFINE_FLOATY_PRINT_ARR(print_float_arr, float);
         int_type minval = x[0];\
         int_type maxval = x[0];\
         long double sum = 0;\
-        double high = int_max/2;\
-        double low = int_min/2;\
+        long double high = (long double)int_max/2;\
+        long double low = (long double)int_min/2;\
 \
         fprintf(stderr,"[");\
         for (size_t i=0; i<n; i++) {\
@@ -593,7 +593,7 @@ DEFINE_SIGNED_PRINT_ARR(print_signed_char_arr, signed char, SCHAR_MAX, SCHAR_MIN
         uint_type minval = x[0];\
         uint_type maxval = x[0];\
         long double sum = 0;\
-        double high = uint_max/2;\
+        long double high = (long double)uint_max/2;\
 \
         fprintf(stderr,"[");\
         for (size_t i=0; i<n; i++) {\
@@ -683,5 +683,3 @@ DEFINE_UNSIGNED_PRINT_ARR(print_unsigned_char_arr, unsigned char, UCHAR_MAX);
     fprintf(stderr,TYPE_NAME(x[0])),\
     fprintf(stderr,") "),\
     PRINT_ARRAY_ELEMENTS(x,n)
-
-
