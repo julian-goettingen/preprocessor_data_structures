@@ -3,6 +3,7 @@ import sys
 import util
 import jinja2
 import json
+import os.path
 
 #TODO: must allow this to be in another directory
 SOURCE_REX = '\#include\s+\"PPDS_SOURCE_(\w+?).h\"'
@@ -16,8 +17,9 @@ class PPDSAbstractTargetHeaderFile():
 
         self.filename = filename
         # f is always either an open file or None
-        self.f = open(self.filename, "w")
+        self.f = open(os.path.join(ppds_target_header_dir, self.filename), "w")
         self.write_opening_message()
+
 
     #TODO: better opening messages
     def write_opening_message(self):
@@ -37,7 +39,7 @@ class PPDSAbstractTargetHeaderFile():
     def reopen(self):
         if self.f is not None:
             raise ValueError("Trying to open file that is already open")
-        self.f = open(self.filename, "a")
+        self.f = open(os.path.join(ppds_target_header_dir, self.filename), "a")
 
     def close(self):
         if self.f is not None:
@@ -266,6 +268,8 @@ def extract_valid_kw_arg(s):
 # proper argparsing later
 files = sys.argv
 print("doing files: ", files)
+ppds_source_header_dir = "ppds_source_headers"
+ppds_target_header_dir = "ppds_target_headers"
 
 for filename in files:
 
@@ -278,7 +282,7 @@ for filename in files:
     pp_dataclasses = []
     for name in source_names:
         source_filename = f"PPDS_SOURCE_{name}.h"
-        with open(source_filename) as f:
+        with open(os.path.join(ppds_source_header_dir, source_filename)) as f:
             source_string = f.read()
         source_strings.append(source_string)
         pp_dataclasses.append(PreprocessorDataClass(name, source_string))
