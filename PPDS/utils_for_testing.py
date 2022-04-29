@@ -20,6 +20,12 @@ def expect_success(sp_res):
     # failure
     raise AssertionError(f"PROCESS FAILED with ret={sp_res.returncode}, stderr-output is:\n{sp_res.stderr}")
 
+def expect_failure(sp_res, *msgs):
+
+    assert sp_res.returncode != 0
+
+    for m in msgs:
+        assert m in sp_res.stderr
 
 
 def should_pass():
@@ -43,4 +49,4 @@ def should_fail():
     expect_success(res)
 
     res = run_process("./a.out")
-    assert res.returncode == 1
+    expect_failure(res, "ASSERTION ERROR")
