@@ -51,7 +51,7 @@ def try_dir(dir, expected_result, msgs=[], compiler="gcc"):
     expect_success(res)
 
     # compile-step
-    res = run_process(f"{compiler} -DNDEBUG=1 -Wall {main_path} -Ippds_source_headers -Ippds_target_headers" )
+    res = run_process(f"{compiler} -DNDEBUG=1 -Wall -Wextra -Wpedantic -Werror {main_path} -Ippds_source_headers -Ippds_target_headers" )
     if expected_result == DirResult.compile_error:
         expect_failure(res,*msgs)
         return
