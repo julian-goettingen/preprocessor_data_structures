@@ -492,8 +492,8 @@
 }\
 
 DEFINE_FLOATY_PRINT_ARR(print_double_arr, double)
-DEFINE_FLOATY_PRINT_ARR(print_long_double_arr, long double);
-DEFINE_FLOATY_PRINT_ARR(print_float_arr, float);
+DEFINE_FLOATY_PRINT_ARR(print_long_double_arr, long double)
+DEFINE_FLOATY_PRINT_ARR(print_float_arr, float)
 
 
 #define DEFINE_SIGNED_PRINT_ARR(name, int_type, int_max, int_min) \
@@ -570,12 +570,12 @@ DEFINE_FLOATY_PRINT_ARR(print_float_arr, float);
     }\
 }
 
-DEFINE_SIGNED_PRINT_ARR(print_int_arr, int, INT_MAX, INT_MIN);
-DEFINE_SIGNED_PRINT_ARR(print_long_arr, long, LONG_MAX, LONG_MIN);
-DEFINE_SIGNED_PRINT_ARR(print_long_long_arr, long long, LLONG_MAX, LLONG_MIN);
-DEFINE_SIGNED_PRINT_ARR(print_short_arr, short, SHRT_MAX, SHRT_MIN);
-DEFINE_SIGNED_PRINT_ARR(print_char_arr, char, CHAR_MAX, CHAR_MIN);
-DEFINE_SIGNED_PRINT_ARR(print_signed_char_arr, signed char, SCHAR_MAX, SCHAR_MIN);
+DEFINE_SIGNED_PRINT_ARR(print_int_arr, int, INT_MAX, INT_MIN)
+DEFINE_SIGNED_PRINT_ARR(print_long_arr, long, LONG_MAX, LONG_MIN)
+DEFINE_SIGNED_PRINT_ARR(print_long_long_arr, long long, LLONG_MAX, LLONG_MIN)
+DEFINE_SIGNED_PRINT_ARR(print_short_arr, short, SHRT_MAX, SHRT_MIN)
+DEFINE_SIGNED_PRINT_ARR(print_char_arr, char, CHAR_MAX, CHAR_MIN)
+DEFINE_SIGNED_PRINT_ARR(print_signed_char_arr, signed char, SCHAR_MAX, SCHAR_MIN)
 
 #define DEFINE_UNSIGNED_PRINT_ARR(name, uint_type, uint_max) \
 /*inline*/ /*static*/ void name( uint_type *x, size_t n) {\
@@ -655,11 +655,11 @@ DEFINE_SIGNED_PRINT_ARR(print_signed_char_arr, signed char, SCHAR_MAX, SCHAR_MIN
     }\
 }
 
-DEFINE_UNSIGNED_PRINT_ARR(print_unsigned_int_arr, unsigned int, UINT_MAX);
-DEFINE_UNSIGNED_PRINT_ARR(print_unsigned_long_arr, unsigned long, ULONG_MAX);
-DEFINE_UNSIGNED_PRINT_ARR(print_unsigned_long_long_arr, unsigned long long, ULLONG_MAX);
-DEFINE_UNSIGNED_PRINT_ARR(print_unsigned_short_arr, unsigned short, USHRT_MAX);
-DEFINE_UNSIGNED_PRINT_ARR(print_unsigned_char_arr, unsigned char, UCHAR_MAX);
+DEFINE_UNSIGNED_PRINT_ARR(print_unsigned_int_arr, unsigned int, UINT_MAX)
+DEFINE_UNSIGNED_PRINT_ARR(print_unsigned_long_arr, unsigned long, ULONG_MAX)
+DEFINE_UNSIGNED_PRINT_ARR(print_unsigned_long_long_arr, unsigned long long, ULLONG_MAX)
+DEFINE_UNSIGNED_PRINT_ARR(print_unsigned_short_arr, unsigned short, USHRT_MAX)
+DEFINE_UNSIGNED_PRINT_ARR(print_unsigned_char_arr, unsigned char, UCHAR_MAX)
 
 // this unfortunately has the PRINT-macro copied into it,
 // this is necessary so that #x, #n expands to the argument-name of PRINT_ARR, not to "x" or "n"

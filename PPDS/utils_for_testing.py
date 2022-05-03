@@ -4,6 +4,14 @@ from enum import IntEnum
 import os.path
 
 
+compiler_list = [
+"gcc -std=c11",
+#"tcc",
+#"gcc -std=c89",
+"clang"
+]
+
+
 def run_process(cmd):
 
 
@@ -51,7 +59,7 @@ def try_dir(dir, expected_result, msgs=[], compiler="gcc"):
     expect_success(res)
 
     # compile-step
-    res = run_process(f"{compiler} -DNDEBUG=1 -Wall -Wextra -Wpedantic -Werror {main_path} -Ippds_source_headers -Ippds_target_headers" )
+    res = run_process(f"{compiler} -DNDEBUG=1 -Wall -Wextra -Werror {main_path} -Ippds_source_headers -Ippds_target_headers" )
     if expected_result == DirResult.compile_error:
         expect_failure(res,*msgs)
         return
@@ -65,9 +73,9 @@ def try_dir(dir, expected_result, msgs=[], compiler="gcc"):
     expect_success(res)
 
 
-def should_pass(compiler):
+def should_pass(dir, compiler):
 
-    try_dir("tests/should_pass", DirResult.no_error, compiler)
+    try_dir(dir, DirResult.no_error, compiler)
 
 def should_fail(compiler):
 

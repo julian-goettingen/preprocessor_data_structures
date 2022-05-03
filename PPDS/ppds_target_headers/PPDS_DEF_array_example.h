@@ -32,7 +32,7 @@
 	fprintf(stderr, "index " idx_name " has value "), PRINT(idx_val), \
 	fprintf(stderr, " in dimension " dim_name " of size "), PRINT(dim_val),\
 	fprintf(stderr,"\ndetected in line %d, func %s, file %s\n",__LINE__,__func__,__FILE__),\
-	fprintf(stderr, "with the object X declared in file: tests/should_fail/main.c, line 12 of type ARR2D\n"),\
+	fprintf(stderr, "with the object X declared in file: /home/julian/preprocessor_data_structures/PPDS/tests/should_fail/main.c, line 12 of type ARR2D\n"),\
 	fprintf(stderr, "object X defined by: pointer=x, nx=nx, ny=ny\n"),\
 	fprintf(stderr, "values of X:\n"), PRINT(x), PRINT(nx), PRINT(ny),\
 	PRINT_ARR(x,nx*ny),\
