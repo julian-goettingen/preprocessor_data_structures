@@ -1,16 +1,22 @@
-// this can sort-of print anything and doesnt need much compiler-wise,
-// but if there is an alternative we should use that alternative
+/* this can sort-of print anything and doesnt need much compiler-wise,*/
+/* but if there is an alternative we should use that alternative*/
 
+/* this module completely sucks, because it cant print lvalues, as &x makes sense only when x is something that can be referenced.*/
+/* so PRINT(1) just fails completely*/
+/* the alternative of copying into a size-1-array does not really work*/
+/* dump-printing is not that useful anyways*/
+
+#include <stdio.h>
 
 #define PRINT(x) fprint_wild(stderr,#x, &x, sizeof(x))
 
 void fprint_wild(FILE *f, const char* name, const void *p, size_t size);
 void fprint_wild(FILE *f, const char* name, const void *p, size_t size) {
-    // these cant be null if the function is called through the macro PRINT
-    assert(p); 
+    /* these cant be null if the function is called through the macro PRINT*/
+    assert(p);
     assert(name);
     fprintf(f,"(%s [hex dump of %ld bytes]::", name, size);
-    const unsigned char *c = (const unsigned char *) p;
+    const unsigned char *c = (const unsigned char*) p;
     for (size_t i=0; i<size; i++){
         fprintf(f, " %02x", c[i]);
     }
@@ -18,12 +24,12 @@ void fprint_wild(FILE *f, const char* name, const void *p, size_t size) {
 }
 
 
-#define PRINT_ARR(p,n) fprint_wild_array(stderr, #p, p, n, p==NULL && n>0?-1:sizeof(p[0]))
+#define PRINT_ARR(p,n) fprint_wild_array(stderr, #p, p, n, ((p!=NULL && n>0)? (-1):sizeof(p[0])))
 
 void fprint_wild_array(FILE *f, const char* name, const void *p, size_t n_elem, size_t element_size);
 void fprint_wild_array(FILE *f, const char* name, const void *p, size_t n_elem, size_t element_size) {
 
-    assert(name); // cant be null if called through the macro
+    assert(name); /* cant be null if called through the macro*/
     if (p==NULL) {
         fprintf(f,"(%s is NULL, but expected to hold %zu elements)", name, n_elem);
         return;
@@ -48,14 +54,14 @@ void fprint_wild_array(FILE *f, const char* name, const void *p, size_t n_elem, 
             fprintf(f,"(");
             for (size_t j=0; j<element_size; j++){
                 fprintf(f, "%02x", c[i]);
-            } 
+            }
             fprintf(f,")");
         }
 
     }
     else {
-        // TODO: look for more bit-patterns that look suspiciously undefined?
-        unsigned n_show = element_size<=8? 6: 3; // show first and last n_show elements
+        /* TODO: look for more bit-patterns that look suspiciously undefined?*/
+        unsigned n_show = element_size<=8? 6: 3; /* show first and last n_show elements*/
         int all_zeroes = 1;
         int all_ones = 1;
 
@@ -64,10 +70,10 @@ void fprint_wild_array(FILE *f, const char* name, const void *p, size_t n_elem, 
                 fprintf(f,"(");
                 for (size_t j=0; j<element_size; j++){
                     fprintf(f, "%02x", c[i]);
-                } 
+                }
                 fprintf(f,")");
 
-                // we still loop the whole array which will often be useless but I dont care right now
+                /* we still loop the whole array which will often be useless but I dont care right now*/
                 all_zeroes &= (c[i]==0);
                 all_ones &= (c[i]==(char)0xFF);
             }
@@ -85,4 +91,3 @@ void fprint_wild_array(FILE *f, const char* name, const void *p, size_t n_elem, 
     }
     fprintf(f,")\n");
 }
-

@@ -1,16 +1,20 @@
+
+/* forcing overwrites auto*/
 #if FORCE_C11_PRINT==1
 #define C11_PRINT
-#endif
-#if FORCE_CXX_PRINT==1
+#elif FORCE_CXX_PRINT==1
 #define CXX_PRINT
-#endif
-#if FORCE_DUMP_PRINT==1
+#elif FORCE_DUMP_PRINT==1
 #define DUMP_PRINT
-#endif
-#if FORCE_NO_PRINT==1
+#elif FORCE_NO_PRINT==1
 #define NO_PRINT
+#elif __STDC__==1 && __STDC_VERSION >= 201112L
+#define C11_PRINT
+#elif defined __cplusplus
+#define CXX_PRINT
+#else
+#define NO_PRINT /* fallback is a little dumb*/
 #endif
-
 
 
 #if defined C11_PRINT

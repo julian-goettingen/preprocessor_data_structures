@@ -1,0 +1,4 @@
+{
+"res" : "runtime_error",
+"err_contains" : ["ASSERTION FAILURE", "OUT OF BOUNDS"]
+}

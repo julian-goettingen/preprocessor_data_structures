@@ -2,10 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define FORCE_CXX_PRINT 1
-//#define FORCE_CXX_PRINT
-//#define FORCE_DUMP_PRINT
-//#define AUTO_PRINT
+
 #include "print_anything.h"
 
 // A PPDS_SOURCE header has 4 parts:
@@ -14,7 +11,7 @@
 // PPDS_ARGS defines the positional arguments and all possible keyword-arguments with their default values in json format
 // this defines a constructor like:
 // example: PPDS_DECLARE_THING(AC,nx,ny,8,bound_check=1)
-// 
+//
 // For each DECLARE, the templates PPDS_DEF and PPDS_UNDEF get instantiated with the following arguments:
 // declare_site: a human-readable description of where the DECLARE happened
 // args: the positional must-have args as a list
@@ -72,4 +69,3 @@
 */
 
 #define PPDS_DECLARE_STACK(name, pointer, maxsize, ...) typeof(maxsize) name##_size = 0
-

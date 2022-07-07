@@ -1,2 +1,2 @@
-#define PRINT(x) (void)x
-#define PRINT_ARR(x,n) (void)x,(void)n
+#define PRINT(x) ((void)0)
+#define PRINT_ARR(x,n) ((void)(0))
