@@ -9,64 +9,86 @@
 ///////////////////////////////////
 
 
+// public:
+
+#define X(i, j) x[X_assert_in_bounds(i,j,#i,#j), X_WRAP_Dim0(i)*ny + X_WRAP_Dim1(j)]
+
 // internal:
 
-#if 0 //numpy_wraparound
-#define X_WRAP(i,dimlen) ((i < 0 ? dimlen + i) : i)
-#else //numpy_wraparound
-#define X_WRAP(i,dimlen) i
-#endif //numpy_wraparound
-
-#if (0) != 0 // skip_checks
-
-#define X_assert_with_index(expr,msg, idx_val, idx_name, dim_val, dim_name) ((void)0)
-#define X_assert_in_bounds(i,j,iname, jname) ((void)0)
-
-#else //skip_checks is zero, so do the checks
-
-#define X_assert_ind_small_enough(i,j,iname,jname) \
-	X_assert_with_index((i)<nx, iname ">=nx is OUT OF BOUNDS for axis 0 of size nx=nx", i, iname, nx), \
-	X_assert_with_index((j)<ny, jname ">=ny is OUT OF BOUNDS for axis 1 of size ny=ny", j, jname, ny)
 
 
-#	if 0 // numpy_wraparound
+#if 0 // numpy_wraparound
+#define X_WRAP_Dim0(i) (i < 0 ? (nx+ i) : i)
+#else // numpy_wraparound
+#define X_WRAP_Dim0(i) i
+#endif // numpy_wraparound
 
-#define X_assert_in_bounds(i,j,iname, jname) \
-	X_assert_ind_small_enough(i,j,iname,jname), \
-	X_assert_with_index((i)>=(-nx), iname "<(-nx) is OUT OF BOUNDS for axis 0 of size nx=nx", i, iname, nx), \
-	X_assert_with_index((j)>=0, jname "<0 is OUT OF BOUNDS for axis 1 of size ny=ny", j, jname, ny) \
+#if 0 // skip_checks
 
-#	else //numpy_wraparound
+#define X_assert_in_bounds_of_Dim0(i, expr_name) ((void)0)
 
-#define X_assert_in_bounds(i,j,iname, jname) \
-	X_assert_ind_small_enough(i,j,iname,jname), \
-	X_assert_with_index((i)>=0, iname "<0 is OUT OF BOUNDS for axis 0 of size nx=nx", i, iname, nx), \
-	X_assert_with_index((j)>=0, jname "<0 is OUT OF BOUNDS for axis 1 of size ny=ny", j, jname, ny) \
+#else // skip_checks
 
-#	endif //numpy_wraparound
+#   if 0 // numpy_wraparound
 
-#define X_assert_with_index(expr,msg, idx_val, idx_name, dim) (void)(expr?(void)0:(X_assert_fail_with_index(expr,msg, idx_val, idx_name, dim, #dim)))
+#define X_assert_in_bounds_of_Dim0(i, expr_name) ((((i) >= nx) || ((i) < -(nx))) ? X_assert_fail(i, expr_name, nx, "Dim0") : ((void)0))
+
+#   else // numpy_wraparound
+
+#define X_assert_in_bounds_of_Dim0(i, expr_name) ((((i) >= nx) || ((i) < 0) )? X_assert_fail(i, expr_name, nx, "Dim0") : ((void)0))
+
+// #define X_assert_in_bounds_of_Dim0(i, expr_name) do{(if((((i) >= nx) || ((i) < 0) ) { X_assert_fail(i, expr_name, nx, "Dim0") } }while(0)
+
+#   endif // numpy_wraparound
 
 #endif //skip_checks
 
 
-#define X_assert_fail_with_index(expr,msg,idx_val,idx_name, dim_val, dim_name) \
-	fprintf(stderr,"\n\n----> ppds ASSERTION FAILURE: %s <----\n", msg),\
-	fprintf(stderr, "index " idx_name " has value "), PRINT(idx_val), \
-	fprintf(stderr, " in dimension " dim_name " of size "), PRINT(dim_val),\
+
+
+#if 0 // numpy_wraparound
+#define X_WRAP_Dim1(i) (i < 0 ? (ny+ i) : i)
+#else // numpy_wraparound
+#define X_WRAP_Dim1(i) i
+#endif // numpy_wraparound
+
+#if 0 // skip_checks
+
+#define X_assert_in_bounds_of_Dim1(i, expr_name) ((void)0)
+
+#else // skip_checks
+
+#   if 0 // numpy_wraparound
+
+#define X_assert_in_bounds_of_Dim1(i, expr_name) ((((i) >= ny) || ((i) < -(ny))) ? X_assert_fail(i, expr_name, ny, "Dim1") : ((void)0))
+
+#   else // numpy_wraparound
+
+#define X_assert_in_bounds_of_Dim1(i, expr_name) ((((i) >= ny) || ((i) < 0) )? X_assert_fail(i, expr_name, ny, "Dim1") : ((void)0))
+
+// #define X_assert_in_bounds_of_Dim1(i, expr_name) do{(if((((i) >= ny) || ((i) < 0) ) { X_assert_fail(i, expr_name, ny, "Dim1") } }while(0)
+
+#   endif // numpy_wraparound
+
+#endif //skip_checks
+
+
+
+
+
+
+#define X_assert_fail(index_val, index_expr, dim_size, dim_name) \
+	fprintf(stderr,"\n\n----> ppds ASSERTION FAILURE: INDEX OUT OF BOUNDS <----\n"),\
+  fprintf(stderr,"index " index_expr " (="), PRINT(index_val),\
+  fprintf(stderr,") is out of bounds for axis " dim_name " of size "), PRINT(dim_size), fprintf(stderr, "="), PRINT(dim_size),\
+  fprintf(stderr, "  (numpy_wraparound is 0).\n"),\
 	fprintf(stderr,"\ndetected in line %d, function %s, file %s\n",__LINE__,__func__,__FILE__),\
 	fprintf(stderr, "with the object X declared in file: tests/full_examples/should_pass/main.c, line 12 of type ARR2D\n"),\
-	fprintf(stderr, "object X defined by: pointer=x, nx=nx, ny=ny\n"),\
-	fprintf(stderr, "values of X:\n"), PRINT(x), PRINT(nx), PRINT(ny),\
-	PRINT_ARR(x,nx*ny),\
-	fprintf(stderr, #expr " evaluated to %d, exiting program.\n", expr),\
-	exit(1)
+  fprintf(stderr, " calling panic action: exit(1)\n"),\
+  exit(1)
 
 
 
-
-// public:
-
-#define X(i, j) x[X_assert_in_bounds(i,j,#i,#j), X_WRAP(i,nx)*ny + X_WRAP(j,ny)]
+#define X_assert_in_bounds(i,j,i_string,j_string) X_assert_in_bounds_of_Dim0(i,i_string), X_assert_in_bounds_of_Dim1(j,j_string)
 
 

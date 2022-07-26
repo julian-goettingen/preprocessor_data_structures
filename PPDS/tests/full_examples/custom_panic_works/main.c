@@ -16,20 +16,11 @@ int main() {
     }
 
 
-
-    int error = 0;
-    PPDS_DECLARE_ARR1D(X,x,n,panic= error=1 );
+    PPDS_DECLARE_ARR1D(X,x,n,panic= abort() );
     
-    printf("%d ", X(-1)); // this should set error to 1
-
-    test failed weil der array-Zugriff illegale ist und deswegen output kommt
-    und stderr output wird immer als fail gesehen.
-
-    if (error == 0) {
-        fprintf(stderr, "error was not set to 1");
-        exit(1);
-    }
+    printf("%d ", X(-1)); // this should abort
 
     free(x); x=NULL;
+
 }
 #include "PPDS_UNDEF_1.h"

@@ -1,2 +1,3 @@
-#define PRINT(x) ((void)0)
-#define PRINT_ARR(x,n) ((void)(0))
+#define PRINT(x) fprintf(stderr, "print disabled")
+
+#define PRINT_ARR(x,n) fprintf(stderr, "(no print_arr)")

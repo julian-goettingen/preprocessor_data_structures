@@ -1,14 +1,16 @@
 import jinja2
 import re
 from parse_err import PPDSParseError
+import config
 
 import json
 from json import JSONDecodeError
 
 import jinja_callable
 
-env = jinja2.Environment(undefined=jinja2.StrictUndefined)
+env = jinja2.Environment(undefined=jinja2.StrictUndefined, loader=jinja2.FileSystemLoader(config.get_config().source_header_loc))
 env.globals["hello_python"] = jinja_callable.hello_python
+# print("loader: ", env.loader.__dict__)
 
 DEF_GETTER_REX = re.compile("/\*\s+PPDS_DEF:\s+(.*?)\*/", re.MULTILINE|re.DOTALL)
 UNDEF_GETTER_REX = re.compile("/\*\s+PPDS_UNDEF:\s+(.*?)\*/", re.MULTILINE|re.DOTALL)
@@ -53,6 +55,7 @@ def get_undef_template_from_source_string(source_string):
     if not template:
         raise PPDSParseError("Expected header-file to contain an UNDEF-template.")
     try:
+        print(env)
         return env.from_string(template.group(1))
     except jinja2.exceptions.UndefinedError as e:
         print(e)
@@ -68,6 +71,7 @@ def get_def_template_from_source_string(source_string):
         # TODO: report close match?
         raise PPDSParseError("Expected header-file to contain a DEF-template.")
     try:
+        print(env)
         return env.from_string(template.group(1))
     except jinja2.exceptions.UndefinedError as e:
         print(e)

@@ -10,7 +10,7 @@ parametrize = pytest.mark.parametrize
 
 #compiler_list = ["gcc"]
 
-@parametrize(("dir", "compiler"), it.product(tut.test_dir_list,tut.compiler_list))
+@parametrize(("dir", "compiler"), it.product(tut.test_dir_list, tut.compiler_list.items()))
 def test_integration(dir, compiler):
 
     tut.auto_try_dir(dir, compiler)

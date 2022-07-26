@@ -1,0 +1,56 @@
+{% macro define_dim_helpers(name, dim_size, dim_name, numpy_wraparound, skip_checks) %}
+
+#if {{numpy_wraparound}} // numpy_wraparound
+#define {{name}}_WRAP_{{dim_name}}(i) (i < 0 ? ({{dim_size}}+ i) : i)
+#else // numpy_wraparound
+#define {{name}}_WRAP_{{dim_name}}(i) i
+#endif // numpy_wraparound
+
+#if {{skip_checks}} // skip_checks
+
+#define {{name}}_assert_in_bounds_of_{{dim_name}}(i, expr_name) ((void)0)
+
+#else // skip_checks
+
+#   if {{numpy_wraparound}} // numpy_wraparound
+
+#define {{name}}_assert_in_bounds_of_{{dim_name}}(i, expr_name) ((((i) >= {{dim_size}}) || ((i) < -({{dim_size}}))) ? {{name}}_assert_fail(i, expr_name, {{dim_size}}, "{{dim_name}}") : ((void)0))
+
+#   else // numpy_wraparound
+
+#define {{name}}_assert_in_bounds_of_{{dim_name}}(i, expr_name) ((((i) >= {{dim_size}}) || ((i) < 0) )? {{name}}_assert_fail(i, expr_name, {{dim_size}}, "{{dim_name}}") : ((void)0))
+
+// #define {{name}}_assert_in_bounds_of_{{dim_name}}(i, expr_name) do{(if((((i) >= {{dim_size}}) || ((i) < 0) ) { {{name}}_assert_fail(i, expr_name, {{dim_size}}, "{{dim_name}}") } }while(0)
+
+#   endif // numpy_wraparound
+
+#endif //skip_checks
+
+{% endmacro %}
+
+{% macro undef_dim_helpers(name, dim_name) %}
+
+#undef {{name}}_WRAP_{{dim_name}}
+#undef {{name}}_assert_in_bounds_of_{{dim_name}}
+
+{% endmacro %}
+
+
+{% macro define_assert_fail(name, dtype_name, numpy_wraparound, declare_site, panic) %}
+
+#define {{name}}_assert_fail(index_val, index_expr, dim_size, dim_name) \
+	fprintf(stderr,"\n\n----> ppds ASSERTION FAILURE: INDEX OUT OF BOUNDS <----\n"),\
+  fprintf(stderr,"index " index_expr " (="), PRINT(index_val),\
+  fprintf(stderr,") is out of bounds for axis " dim_name " of size "), PRINT(dim_size), fprintf(stderr, "="), PRINT(dim_size),\
+  fprintf(stderr, "  (numpy_wraparound is {{numpy_wraparound}}).\n"),\
+	fprintf(stderr,"\ndetected in line %d, function %s, file %s\n",__LINE__,__func__,__FILE__),\
+	fprintf(stderr, "with the object {{name}} declared in {{declare_site}} of type {{dtype_name}}\n"),\
+  fprintf(stderr, " calling panic action: {{panic}}\n"),\
+  {{panic}}
+
+{% endmacro %}
+
+{% macro undef_assert_fail(name)%}
+#undef {{name}}_assert_fail
+{% endmacro %}
+

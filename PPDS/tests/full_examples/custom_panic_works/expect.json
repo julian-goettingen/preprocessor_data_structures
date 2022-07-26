@@ -1,1 +1,1 @@
-{"res": "no_error"}
+{"res": "runtime_error", "err_contains": "abort()"}

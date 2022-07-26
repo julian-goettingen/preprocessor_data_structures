@@ -1,14 +1,19 @@
 import re
 import sys
+
+from numpy import isin
 import util
 import jinja2
 import json
 import os.path
+from glob import glob
 
 from parse import PPDSParseError, parse_args_string
 import template_factory
 
+from config import get_config
 
+conf = get_config()
 
 
 #TODO: must allow this to be in another directory -> not needed, bc the dir must
@@ -167,9 +172,13 @@ class PreprocessorDataClass():
         
         user_args = parse_args_string(argstring, self.posargs, self.kwargs)
 
-        # initialize with defaults
+        # initialize with defaults from the header-file itself
         argdict = {**self.kwargs}
 
+        # global config takes precedence
+        argdict.update(conf.global_default_params)
+
+        # the actual parameters passed in have highest precedence
         argdict.update(user_args)
         
         return argdict
@@ -235,7 +244,8 @@ ERROR parsing PPDS-annotations in file {filename} line {line_no}:
 {e.reason}
 
 {e.detail}
-                """)
+                """) # TODO: this somehow catches too many exceptions
+                # raise
                 exit(1)
 
         assert(len(defstack)==len(undefstack))
@@ -246,10 +256,19 @@ ERROR parsing PPDS-annotations in file {filename} line {line_no}:
 
 
 # proper argparsing later
-files = sys.argv[1:]
-print("doing files: ", files)
-ppds_source_header_dir = "ppds_source_headers"
-ppds_target_header_dir = "ppds_target_headers"
+ppds_source_header_dir = conf.source_header_loc
+ppds_target_header_dir = conf.target_header_loc
+
+files = set()
+for s in conf.search_paths:
+    if not isinstance(s, str):
+        print("search paths must be strings, but in config file found: {s}")
+        exit(1)
+    matches = glob(s,recursive=True)
+    print("matches: ",matches)
+    files = files.union(set(glob(s)))
+
+print("ppds preparing files: ", files)
 
 for filename in files:
 

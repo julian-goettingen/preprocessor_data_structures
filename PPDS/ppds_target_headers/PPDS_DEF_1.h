@@ -5,41 +5,54 @@
 
 
 // public:
-#define X(i) x[X_assert_in_bounds(i,#i), X_WRAP(i)]
+#define X(i) x[X_assert_in_bounds(i), X_WRAP_len(i)]
 
 // internal:
-#if 0
-#define X_WRAP(i) (i < 0 ? (n + i) : i
-#else
-#define X_WRAP(i) i
-#endif
 
-#if NDEBUG
-#define X_assert_in_bounds(i, expr_name) ((void)0)
-#else
 
-#   if 0
 
-#define X_assert_in_bounds(i, expr_name) ((((i) >= n) || ((i) < -(n))) ? X_assert_fail(i, expr_name) : ((void)0))
+#if 0 // numpy_wraparound
+#define X_WRAP_len(i) (i < 0 ? (500+ i) : i)
+#else // numpy_wraparound
+#define X_WRAP_len(i) i
+#endif // numpy_wraparound
 
-#   else //numpy_wraparound
+#if NDEBUG // skip_checks
 
-#define X_assert_in_bounds(i, expr_name) ((((i) >= n) || ((i) < 0) )? X_assert_fail(i, expr_name) : ((void)0))
+#define X_assert_in_bounds_of_len(i, expr_name) ((void)0)
 
-#   endif //numpywraparound
+#else // skip_checks
+
+#   if 0 // numpy_wraparound
+
+#define X_assert_in_bounds_of_len(i, expr_name) ((((i) >= 500) || ((i) < -(500))) ? X_assert_fail(i, expr_name, 500, "len") : ((void)0))
+
+#   else // numpy_wraparound
+
+#define X_assert_in_bounds_of_len(i, expr_name) ((((i) >= 500) || ((i) < 0) )? X_assert_fail(i, expr_name, 500, "len") : ((void)0))
+
+// #define X_assert_in_bounds_of_len(i, expr_name) do{(if((((i) >= 500) || ((i) < 0) ) { X_assert_fail(i, expr_name, 500, "len") } }while(0)
+
+#   endif // numpy_wraparound
 
 #endif //skip_checks
 
-#define X_assert_fail(i, expr_name) \
-	fprintf(stderr,"\n\n----> ppds ASSERTION FAILURE: index of 1D-Array is OUT OF BOUNDS <----\n"),\
-  fprintf(stderr,"index (" expr_name "is out of bounds for ARR1D of size "), PRINT(n),\
-  fprintf(stderr, "numpywraparound is 0.\n"),\
+
+
+#define X_assert_in_bounds(i) X_assert_in_bounds_of_len(i,#i)
+
+
+
+#define X_assert_fail(index_val, index_expr, dim_size, dim_name) \
+	fprintf(stderr,"\n\n----> ppds ASSERTION FAILURE: INDEX OUT OF BOUNDS <----\n"),\
+  fprintf(stderr,"index " index_expr " (="), PRINT(index_val),\
+  fprintf(stderr,") is out of bounds for axis " dim_name " of size "), PRINT(dim_size), fprintf(stderr, "="), PRINT(dim_size),\
+  fprintf(stderr, "  (numpy_wraparound is 0).\n"),\
 	fprintf(stderr,"\ndetected in line %d, function %s, file %s\n",__LINE__,__func__,__FILE__),\
-	fprintf(stderr, "with the object X declared in file: tests/full_examples/custom_panic_works/main.c, line 20 of type ARR1D\n"),\
-	fprintf(stderr, "object X defined by: pointer=x, len=n numpy_wraparound=0\n"),\
-	fprintf(stderr, "values of X:\n"), PRINT(x), PRINT(n),\
-  PRINT_ARR(x, n),\
-  fprintf(stderr, " calling panic action: error=1\n"),\
-  error=1
+	fprintf(stderr, "with the object X declared in file: tests/full_examples/index_error_can_raise/main.c, line 25 of type ARR1D\n"),\
+  fprintf(stderr, " calling panic action: throw_bad_index()\n"),\
+  throw_bad_index()
+
+
 
 

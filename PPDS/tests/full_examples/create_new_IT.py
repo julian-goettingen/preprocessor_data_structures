@@ -1,3 +1,4 @@
+#!/bin/bash/python
 
 import re
 import json
@@ -31,6 +32,9 @@ int main() {
 #include "PPDS_UNDEF_1.h"
 
 """
+if( not (len(sys.argv) > 1)):
+    print("needs argument")
+    sys.exit(1)
 
 for dir in sys.argv[1:]:
 

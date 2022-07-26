@@ -10,15 +10,16 @@ from dataclasses import dataclass
 from typing import List
 
 
-compiler_list = [
-"gcc -std=c11 -fdiagnostics-color=always",
-"gcc -std=c99 -fdiagnostics-color=always",
-"gcc -std=gnu11 -fdiagnostics-color=always",
-"gcc -std=gnu99 -fdiagnostics-color=always",
-"g++ -fdiagnostics-color=always",
-# "tcc",
-"clang"
-]
+compiler_list = {
+    "gcc c11": {"call":"gcc -std=c11 -fdiagnostics-color=always", "abilities": {"c11", "c"}},
+    "gcc c99": {"call": "gcc -std=c99 -fdiagnostics-color=always", "abilities": {"c99", "c"}},
+    "gcc gnu11": {"call": "gcc -std=gnu11 -fdiagnostics-color=always", "abilities": {"c11", "c", "gnu"}},
+    "gcc gnu99": {"call": "gcc -std=gnu99 -fdiagnostics-color=always", "abilities": {"c99", "c", "gnu"}},
+    "g++": {"call": "g++ -fdiagnostics-color=always", "abilities": {"cpp", "gnu"}},
+    # "tcc", # get this to work? need to install it from source though...
+    "clang": {"call": "clang -fdiagnostics-color=always", "abilities": {"c"}},
+    "clang++": {"call": "clang++ -x c++ -fdiagnostics-color=always", "abilities": {"cpp"}}, # this call is so weird because it needs to compile .c files as c++ without complaining
+}
 
 def find_dirs():
 
@@ -37,28 +38,35 @@ class Compiler():
 
 
 
-def run_process(cmd, timeout=0.5):
+def run_process(cmd, timeout=0.5, cwd=None):
 
-
-    res = subprocess.run(cmd, shell=True, capture_output=True, timeout=timeout)
+    res = subprocess.run(cmd, shell=True, capture_output=True, timeout=timeout, cwd=cwd)
 
     return res
 
-def expect_success(sp_res, stage):
+def expect_success(sp_res, stage, stderr_non_empty_ok=False):
 
-    if sp_res.returncode == 0:
-        assert sp_res.stderr == b""
+    if sp_res.returncode == 0 and sp_res.stderr == b"":
 
+        print("stderr empty & succ")
         # ret code 0 and no stderr output --> success
         return
+
+    if sp_res.returncode == 0 and stderr_non_empty_ok:
+
+        print("stderr non-empty & succ")
+        # tolerate the stderr-output
+        return
+
+    errlen = len(sp_res.stderr)
 
     # report failure
     print(f"failed in stage: '{stage}'.\n#####stdout of failed action:", file=sys.stderr)
     sys.stderr.buffer.write(sp_res.stdout) # -> this writes bytes to stdout directly, keeping special stuff like colors and symbols
-    print("########### stderr of failed action:", file=sys.stderr)
+    print("\n########### stderr of failed action:", file=sys.stderr)
     sys.stderr.buffer.write(sp_res.stderr) # -> this writes bytes to stdout directly, keeping special stuff like colors and symbols
     print("########### Output end", file=sys.stderr)
-    raise AssertionError(f"PROCESS FAILED with ret={sp_res.returncode}")
+    raise AssertionError(f"PROCESS FAILED with ret={sp_res.returncode} and {errlen} characters in stderr")
 
 def expect_failure(sp_res, *msgs):
 
@@ -77,46 +85,75 @@ class DirResult(IntEnum):
     runtime_error = 3
     no_error = 4
 
-def try_dir(dir, expected_result,*, msgs=[], compiler="gcc"):
+def try_dir(dir, expected_result,*, require=set(), stderr_non_empty_ok=False, msgs=[], compiler=None):
 
     main_path = os.path.join(dir, "main.c")
 
-    # ppds-step
-    res = run_process(f"python3 src/main.py {main_path}")
-    if expected_result == DirResult.ppds_error:
-        expect_failure(res,*msgs)
-        return
-    expect_success(res, "PREPROCESS WITH PPDS")
+    if compiler is None:
+        raise ValueError("need a compiler")
 
-    # compile-step
-    res = run_process(f"{compiler} -Wall -Wextra -Werror {main_path} -Ippds_source_headers -Ippds_target_headers" )
-    if expected_result == DirResult.compile_error:
-        expect_failure(res,*msgs)
-        return
-    expect_success(res, "COMPILE C CODE")
+    # compilers should really be objects not this hot mess of dicts
+    comp_name, comp_call, comp_abilities = compiler[0], compiler[1]["call"], set(compiler[1]["abilities"])
 
-    # run-step
-    res = run_process("./a.out")
-    if expected_result == DirResult.runtime_error:
-        expect_failure(res,*msgs)
+    if (not require.issubset(comp_abilities)):
+        # skip bc compiler cant compile this
+        # this is a success which is kinda wrong but skips would be confusing
         return
-    expect_success(res, "RUN COMPILED BINARY")
+    
 
-def auto_try_dir(dir, compiler="gcc"):
+    def cleanup():
+        res = run_process(f"make clean", cwd=dir)
+        if (res.returncode != 0): # make clean really should not fail
+            raise AssertionError(f"make clean failed with {res.returncode}, {res.stderr}")
+    
+    # cleanup before each test to give it a fresh start, but cleanup afterwards also. Overkill? maybe
+    cleanup()
+    try:
+        # ppds-step
+        res = run_process(f"make prepare", cwd=dir)
+        if expected_result == DirResult.ppds_error:
+            expect_failure(res,*msgs)
+            return
+        expect_success(res, "PREPROCESS WITH PPDS", stderr_non_empty_ok)
+
+        # compile-step
+        res = run_process(f'CC="{comp_call} -Wall -Wextra -Werror" make compile ', cwd=dir)
+        if expected_result == DirResult.compile_error:
+            expect_failure(res,*msgs)
+            return
+        expect_success(res, f"COMPILE C CODE with compiler {comp_name}", stderr_non_empty_ok)
+
+        # run-step
+        res = run_process("./a.out", cwd=dir)
+        if expected_result == DirResult.runtime_error:
+            expect_failure(res,*msgs)
+            return
+        expect_success(res, f"RUN COMPILED BINARY of {comp_name}", stderr_non_empty_ok)
+    finally:
+        cleanup()
+
+def auto_try_dir(dir, compiler=None):
 
     xpfile = os.path.join(dir, "expect.json")
 
     if not os.path.exists(xpfile):
-        try_dir(dir, DirResult.no_error, compiler=compiler)
-        return # success
+        raise ValueError("test folder must have an 'expect.json' file detailing what is expected from the test")
 
     with open(xpfile, "r") as f:
         xpect = json.load(f)
 
+    # there are cleaner way to set defaults, replace this with dict.update() when it gets any bigger
     if "err_contains" not in xpect.keys():
         xpect["err_contains"] = []
+    
+    if "stderr_non_empty_ok" not in xpect.keys():
+        xpect["stderr_non_empty_ok"] = False
+    
+    if "require" not in xpect.keys():
+        xpect["require"] = []
+    xpect["require"] = set(xpect["require"])
 
-    try_dir(dir, DirResult[xpect["res"]], msgs=xpect["err_contains"], compiler=compiler)
+    try_dir(dir, DirResult[xpect["res"]], require=xpect["require"], stderr_non_empty_ok=xpect["stderr_non_empty_ok"], msgs=xpect["err_contains"], compiler=compiler)
     # get expected result and message from expect.json
 
 
