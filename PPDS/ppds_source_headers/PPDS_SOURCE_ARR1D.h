@@ -14,6 +14,13 @@
 }
 */
 
+/* PPDS_CONSTRUCTORS:
+[
+    "\\s*PPDS_DECLARE_ARR1D(\\(.*)",
+    "\\s*PPDS_FN_ARG_ARR1D(\\(.*)"
+]
+ */
+
 /* PPDS_DEF:
 {% import 'macros.jinja2' as util -%}
 
@@ -38,7 +45,7 @@
 */
 
 
-// this is declared so weirdly because ... in the c-preprocessor means "1 or more arguments"
+// this is declared so weirdly because "..." in the c-preprocessor means "1 or more arguments"
 #define PPDS_DECLARE_ARR1D(name, pointer, /*len,*/ ...) ((void)0);
 
 /*

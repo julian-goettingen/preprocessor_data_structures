@@ -8,12 +8,15 @@ import itertools as it
 parametrize = pytest.mark.parametrize
 
 
-#compiler_list = ["gcc"]
 
-@parametrize(("dir", "compiler"), it.product(tut.test_dir_list, tut.compiler_list.items()))
+@parametrize(
+    ("dir", "compiler"), it.product(tut.test_dir_list, tut.compiler_list.items())
+)
 def test_integration(dir, compiler):
 
     tut.auto_try_dir(dir, compiler)
+
+
 #
 # @parametrize("compiler", tut.compiler_list)
 # def test_can_compile(compiler):

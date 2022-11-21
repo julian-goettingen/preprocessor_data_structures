@@ -38,7 +38,7 @@ class Compiler():
 
 
 
-def run_process(cmd, timeout=0.5, cwd=None):
+def run_process(cmd, timeout=5, cwd=None):
 
     res = subprocess.run(cmd, shell=True, capture_output=True, timeout=timeout, cwd=cwd)
 

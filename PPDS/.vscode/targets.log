@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Jul 26 01:23:01 2022
+# Make data base, printed on Sat Aug 27 11:46:18 2022
 
 # Variables
 
@@ -21,7 +21,7 @@ NO_AT_BRIDGE = 1
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-33498c18-90d4-4a68-8b92-b41cfa99547b.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-f0f707e3-a8bb-4502-8cc3-d0f4d5c6152c.sock
 # environment
 VSCODE_CWD = /home/julian
 # environment
@@ -51,7 +51,7 @@ VSCODE_CODE_CACHE_PATH = /home/julian/.config/Code/CachedData/30d9c6cd9483b2cc58
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.PBLRP1
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.F3HAR1
 # default
 .LOADED := 
 # default
@@ -63,7 +63,7 @@ CURDIR := /home/julian/preprocessor_data_structures/PPDS
 # environment
 VSCODE_PIPE_LOGGING = true
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
 # environment
@@ -85,13 +85,13 @@ MAKEFILE_LIST :=
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 3714
+VSCODE_PID = 4405
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/unix:@/tmp/.ICE-unix/2282,unix/unix:/tmp/.ICE-unix/2282
+SESSION_MANAGER = local/unix:@/tmp/.ICE-unix/1997,unix/unix:/tmp/.ICE-unix/1997
 # automatic
 *F = $(notdir $*)
 # environment
@@ -125,7 +125,7 @@ MAKEFILES :=
 # automatic
 ^F = $(notdir $^)
 # environment
-INVOCATION_ID = 063024edfe0d4d4e9deefa21fcfbb679
+INVOCATION_ID = 13ef3f6da10246ee8da71735029881e5
 # environment
 VSCODE_LOG_NATIVE = false
 # environment
@@ -151,7 +151,7 @@ GIO_LAUNCHED_DESKTOP_FILE = /usr/share/applications/code.desktop
 # makefile
 .DEFAULT_GOAL := 
 # environment
-SYSTEMD_EXEC_PID = 2314
+SYSTEMD_EXEC_PID = 2028
 # environment
 EDITOR = /usr/bin/nano
 # environment
@@ -161,15 +161,15 @@ USER = julian
 # default
 MAKE_VERSION := 4.3
 # environment
-MANAGERPID = 2207
+MANAGERPID = 1922
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 3714
+GIO_LAUNCHED_DESKTOP_FILE_PID = 4405
 # environment
 _ = /usr/bin/make
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
-JOURNAL_STREAM = 8:28493
+JOURNAL_STREAM = 8:29536
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -255,12 +255,12 @@ GNUmakefile:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 18 / storage = 176 B / avg = 9 B
-# current buf: size = 8162 B / used = 176 B / count = 18 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 18 / storage = 181 B / avg = 10 B
+# current buf: size = 8162 B / used = 181 B / count = 18 / avg = 10 B
 
 # strcache performance: lookups = 21 / hit rate = 14%
 # hash-table stats:
 # Load=18/8192=0%, Rehash=0, Collisions=0/21=0%
-# Finished Make data base on Tue Jul 26 01:23:01 2022
+# Finished Make data base on Sat Aug 27 11:46:18 2022
 
  

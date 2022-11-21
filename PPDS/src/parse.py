@@ -2,13 +2,28 @@ import re
 from parse_err import PPDSParseError
 
 
+def make_arg_dict(posargs, default_kwargs, argstring):
+
+    user_args = parse_args_string(argstring, posargs, default_kwargs)
+
+    # initialize with defaults from the header-file and the global config
+    argdict = {**default_kwargs}
+
+    # the actual parameters passed in have highest precedence
+    argdict.update(user_args)
+
+    return argdict
+
+
 def parse_args_string(raw_args, posarglist, kwargnames):
 
     arglist = preprocess_raw_args(raw_args)
 
     if len(arglist) < len(posarglist):
-        raise PPDSParseError("Not enough positional arguments", detail=f"arglist {arglist} of length {len(arglist)} cannot satisfy required {len(posarglist)} positional arguments {posarglist}")
-
+        raise PPDSParseError(
+            "Not enough positional arguments",
+            detail=f"arglist {arglist} of length {len(arglist)} cannot satisfy required {len(posarglist)} positional arguments {posarglist}",
+        )
 
     argdict = {}
 
@@ -18,23 +33,24 @@ def parse_args_string(raw_args, posarglist, kwargnames):
 
         val = extract_valid_pos_arg(arg)
         argdict[argname] = val
-        argnum += 1 # deliberately at bottom
+        argnum += 1  # deliberately at bottom
 
     # iterate through the rest of arglist to get the keyword-args
     for arg in arglist[argnum:]:
         argname, val = extract_valid_kw_arg(arg)
         if argname not in kwargnames:
-            raise PPDSParseError(f"{argname} is not a valid keyword-argument. Must be one of {kwargnames}")
+            raise PPDSParseError(
+                f"{argname} is not a valid keyword-argument. Must be one of {kwargnames}"
+            )
         argdict[argname] = val
-    
+
     return argdict
 
 
 def preprocess_raw_args(raw_args):
 
-    #only what is between the outermost brackets is an argument
-    #remove everything except the stuff between them
-    
+    # only what is between the outermost brackets is an argument
+    # remove everything except the stuff between them
 
     # todo: all of this should be handled by grammars not regexp
     m = re.match(r"\((.*)\)", raw_args)
@@ -50,12 +66,14 @@ def preprocess_raw_args(raw_args):
 def extract_valid_pos_arg(s):
 
     if "=" in s and "==" not in s:
-        raise PPDSParseError(f"positional args error: {s} is not a proper positional argument")
+        raise PPDSParseError(
+            f"positional args error: {s} is not a proper positional argument"
+        )
 
     return s.strip()
 
-def extract_valid_kw_arg(s):
 
+def extract_valid_kw_arg(s):
 
     byeq = s.split("=")
     name = byeq[0]
@@ -64,7 +82,9 @@ def extract_valid_kw_arg(s):
     return name.strip(), val.strip()
 
 
-_flip = {"(":")", "[":"]", "{":"}"}
+_flip = {"(": ")", "[": "]", "{": "}"}
+
+
 def split_smart(s):
 
     bracket_stack = []
@@ -72,12 +92,12 @@ def split_smart(s):
     current_str = []
 
     def finalize_arg():
-        nonlocal current_str,result_list
+        nonlocal current_str, result_list
         result_list.append("".join(current_str).strip())
         current_str = []
 
-    for i,c in enumerate(s):
-        if c == "," and len(bracket_stack)==0:
+    for i, c in enumerate(s):
+        if c == "," and len(bracket_stack) == 0:
             finalize_arg()
             continue
         current_str.append(c)
@@ -87,9 +107,9 @@ def split_smart(s):
             if len(bracket_stack) > 0:
                 t = bracket_stack.pop()
                 if _flip[t] != c:
-                    raise PPDSParseError(s+" has invalid brackets", position=i)
+                    raise PPDSParseError(s + " has invalid brackets", position=i)
             else:
-                raise PPDSParseError(s+ " closes bracket before ")
+                raise PPDSParseError(s + " closes bracket before ")
     finalize_arg()
 
     return result_list

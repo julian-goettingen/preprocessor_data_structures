@@ -32,6 +32,15 @@
 }
 */
 
+
+/* PPDS_CONSTRUCTORS:
+[
+    "\\s*PPDS_DECLARE_STACK(\\(.*)",
+    "\\s*PPDS_FN_ARG_STACK(\\(.*)"
+]
+ */
+
+
 /* PPDS_DEF:
 {% set size = name + "_size" %}
 

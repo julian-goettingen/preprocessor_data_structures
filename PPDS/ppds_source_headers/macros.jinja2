@@ -1,12 +1,15 @@
 {% macro define_dim_helpers(name, dim_size, dim_name, numpy_wraparound, skip_checks) %}
 
+
 #if {{numpy_wraparound}} // numpy_wraparound
 #define {{name}}_WRAP_{{dim_name}}(i) (i < 0 ? ({{dim_size}}+ i) : i)
 #else // numpy_wraparound
 #define {{name}}_WRAP_{{dim_name}}(i) i
 #endif // numpy_wraparound
 
+
 #if {{skip_checks}} // skip_checks
+
 
 #define {{name}}_assert_in_bounds_of_{{dim_name}}(i, expr_name) ((void)0)
 

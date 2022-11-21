@@ -13,3 +13,6 @@ prepare:
 compile:
 	${CC} main.c -Ippds_target_headers -I../../../ppds_source_headers
 
+run:
+	./a.out
+

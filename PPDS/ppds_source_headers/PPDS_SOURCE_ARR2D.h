@@ -13,6 +13,13 @@
 }
 */
 
+/* PPDS_CONSTRUCTORS:
+[
+    "\\s*PPDS_DECLARE_ARR2D(\\(.*)",
+    "\\s*PPDS_FN_ARG_ARR2D(\\(.*)"
+]
+ */
+
 /*  PPDS_DEF:
 
 ///////////////////////////////////

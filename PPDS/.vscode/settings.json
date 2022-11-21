@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "ppds_source_arr1d.h": "c"
+        "ppds_source_arr1d.h": "c",
+        "stddef.h": "c",
+        "send2py.h": "c",
+        "unistd.h": "c"
     }
 }
