@@ -1,0 +1,39 @@
+getting to functions in ppds:
+
+make it possible ARR1D_ARG is read into a def so it can use the old parser
+old parser must be able to ignore types (optionally)
+understand type "required"
+
+alternative constructors on declare-thing that can expand to something else (and that something else could even be defined in the header itself)
+
+constructor must be: FUNCTION_DECLARE_xy, FUNCTION_DEFINE_xy (and later maybe something to include them in structs??)
+aber der muss mehr kðnnen: types mitlesen!
+
+new parts to define in the source-header:
+expansion that makes the check for required arguments, 
+expansion to fill the function-definition,
+
+the function must define expansions:
+a macro to make the checks & call the unchecked function
+a checked function (for python, difficult because types have to be guessed? Nah, size_t is probably fine)
+the unchecked function
+
+
+refactor existing parser to parse to a datastructure first, then make the template from that datastructure
+
+
+Eine PPDSDataClass nimmt muss folgende snippets definieren:
+eine python-arglist, die im header einer Funktion benutzt werden kann (?)
+Ein python-snippet, um eine python-Datenstruktur auf die args abzubilden mit checks
+ein C-snippet, was die Expansion in der Funktionsdefinition ùbernimmt (ist es in der Deklaration die gleiche? Expansion ja, aber da muss kein Objekt fùr erzeugt werden. Wie handlet man das am besten?)
+Ein C-snippet, was die Argumentùberprùfung ùbernimmt
+Ein C-snippet, was die Argumentexpansion beim funktionsaufruf (Makroaufruf(?)) ùbernimmt
+
+die dataclasses sollten Typen optional nehmen
+
+Zusñtlich nùtzliche Eigenschaften:
+einen basic-datentyp (optional) der dann in verschiedene Typsystem-strings gewandelt werden kann (printf, numpy, mpi, hdf5, C, ...?)
+die info, ob das array continuous ist (-> als buffer so gùltig ist, also einfach weggeschickt werden kann)
+
+
+jeder Konstruktor kann entweder types verlangen oder sie optional lassen

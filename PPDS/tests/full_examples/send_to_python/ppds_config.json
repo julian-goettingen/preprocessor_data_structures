@@ -1,0 +1,10 @@
+
+{
+    "source_header_loc": "../../../ppds_source_headers",
+    "target_header_loc": "./ppds_target_headers",
+    "pygen_usables_loc": "../../../ppds_pygen_usables",
+    "pygen_target_loc": "./ppds_generated_python",
+    "interface_desc_loc": "./ppds_interface_desc",
+    "search_paths": ["./main.c"],
+    "global_default_params": {}
+}
