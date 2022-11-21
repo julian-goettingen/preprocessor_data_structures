@@ -1,3 +1,4 @@
+import sys
 import re
 import traceback
 
@@ -5,6 +6,16 @@ import util
 import shutil
 import os.path
 from glob import glob
+from pathlib import Path
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+# print(__file__)
+sys.path.extend([
+    os.path.join(PROJECT_ROOT),
+    os.path.join(PROJECT_ROOT, "PPDS"),
+    os.path.join(PROJECT_ROOT, "PPDS", "src")
+])
+print(sys.path)
 
 from PPDS.src.PreprocessorDataClass import PreprocessorDataClass
 from parse import PPDSParseError, parse_args_string
