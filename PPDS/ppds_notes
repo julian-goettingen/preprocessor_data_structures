@@ -37,3 +37,7 @@ die info, ob das array continuous ist (-> als buffer so gùltig ist, also einfac
 
 
 jeder Konstruktor kann entweder types verlangen oder sie optional lassen
+
+
+potentielles Problem: wenn ppds fehlschlaegt, ist das file immer noch so halb gueltig, da die alten defs noch da sind
+vielleicht sollte man stattdessen einen error irgendwo reinschmeissen oder die header loeschen

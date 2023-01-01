@@ -27,6 +27,9 @@ def test_find_repl():
     assert("ARR1D" not in s)
     assert(len(ls) == 1)
 
+def test_with_charp_return():
+    f = cf.read_func_decl("char *hello_world()")
+
 def test_with_simple_array():
     f = cf.read_func_decl("int bar(ARR1D_ARG(X,double *x, size_t n))")
     assert(f.name == 'bar')
@@ -34,3 +37,5 @@ def test_with_simple_array():
     assert(f.params == [None])
     pass
 
+def test_with_real_arr():
+    f = cf.read_func_decl("const char *compute_on_arr(ARR1D_ARG(A, double *x, int n))");

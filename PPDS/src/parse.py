@@ -1,5 +1,6 @@
 import re
 from parse_err import PPDSParseError
+from typing import Dict, Any
 
 
 def make_arg_dict(posargs, default_kwargs, argstring):
@@ -9,7 +10,7 @@ def make_arg_dict(posargs, default_kwargs, argstring):
     # initialize with defaults from the header-file and the global config
     argdict = {**default_kwargs}
 
-    # the actual parameters passed in have highest precedence
+    # the actual parameters passed in have the highest precedence
     argdict.update(user_args)
 
     return argdict
@@ -44,7 +45,73 @@ def parse_args_string(raw_args, posarglist, kwargnames):
             )
         argdict[argname] = val
 
+    argdict = flatten_specials(argdict)
+
     return argdict
+
+
+COLON_REX = re.compile(r"(?<!:):(?!:)")  # matches ":" but not "::" to allow namespaces
+
+
+def flatten_specials(argdict):
+
+    res = {}
+    for k, v in argdict.items():
+        m = COLON_REX.split(v)
+        if len(m) == 1:
+            # no special annotations; keep it as is
+            res[k] = v
+        elif len(m) == 2:
+            # special annotations present; append them separately
+            res[k] = m[0].strip()
+            annotations = split_smart(m[1])
+            for a in annotations:
+                anno_dict = annotation_to_dict(a)
+                flat_append_in_place(res, k, anno_dict)
+        else:
+            raise PPDSParseError(
+                f"Illegal pattern of colons (':') in argument {v} for parameter {k},"
+                f"an argument should be of the form"
+                f"\"val\" or \"val : extra_info(stuff)\" or \"val : extra_info(stuff), more_info(more_stuff)\")"
+                f"the c++-namespace-syntax ('::') is supported"
+            )
+
+    return res
+
+
+TYPE_REX = re.compile(r"type\((\w+)\)")
+ELEMENTTYPE_REX = re.compile(r"elementtype\((\w+)\)")
+ISSAFE_REX = re.compile(r"issafe\((true|false)\)")
+
+
+def annotation_to_dict(a: str):
+
+    if m := TYPE_REX.match(a):
+        return {"type": m.group(1)}
+    elif m := ELEMENTTYPE_REX.match(a):
+        return {"elementtype": m.group(1)}
+    elif m := ISSAFE_REX.match(a):
+        boolval = True if m.group(1) == "true" else False
+        return {"issafe": boolval}
+
+    raise PPDSParseError(f"Unknown or misused annotation {a}")
+
+
+
+def flat_append_in_place(
+    dict1: Dict[str, Any], name_prefix: str, dict2: Dict[str, Any]
+):
+
+    for k, v in dict2.items():
+        newkey = name_prefix + "_" + k
+        if newkey in dict1:
+            raise PPDSParseError(
+                f"key {newkey} exists on \n{dict1}\n"
+                f"therefore the extra information contained in \n{dict2}\n"
+                f"cannot be added to it.\n"
+                f"This is most likely due to a name conflict in the source-file for this datastructure."
+            )
+        dict1[newkey] = v
 
 
 def preprocess_raw_args(raw_args):

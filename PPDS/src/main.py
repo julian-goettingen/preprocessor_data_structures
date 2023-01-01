@@ -8,6 +8,7 @@ import os.path
 from glob import glob
 from pathlib import Path
 
+
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 # print(__file__)
 sys.path.extend([
@@ -17,6 +18,7 @@ sys.path.extend([
 ])
 print(sys.path)
 
+from PPDS.src.post_process_args import post_process_args_in_place
 from PPDS.src.PreprocessorDataClass import PreprocessorDataClass
 from parse import PPDSParseError, parse_args_string
 import template_factory
@@ -129,6 +131,15 @@ class PPDSTargetFileStack:
 
     def pop(self):
 
+        if self.is_empty():
+            # TODO: this exception knows too much about the context
+            # some sort of MDC would be nicer
+            raise PPDSParseError(
+                "Can not close scope."
+                " This might indicate a problem "
+                "with the PPDS_DEF/PPDS_UNDEF-header file usage in your file"
+            )
+
         ret = self.ls.pop()
 
         if not self.is_empty():
@@ -178,6 +189,9 @@ def handle_code(ppds_data_class, cleaned_c_source, filename):
 
             m = re.match(undef_rex, line)
             if m:
+                # print("found undef header")
+                # print(defstack)
+                # print(undefstack)
                 def_file = defstack.pop()
                 undef_file = undefstack.pop()
                 md = re.match(r"PPDS_DEF_(\w+)\.h", def_file.filename)
@@ -208,8 +222,10 @@ def handle_code(ppds_data_class, cleaned_c_source, filename):
             for constr_rex in ppds_data_class.constructor_list:
                 m = re.match(constr_rex, line)
                 if m:
+                    print("found match: ", m)
                     raw_args = m.group(1)
                     argdict = ppds_data_class.parse_args(raw_args)
+                    post_process_args_in_place(argdict, ppds_data_class.name)
                     declare_site = f"file: {filename}, line {line_no}"
 
                     extradef = ppds_data_class.render_def(argdict, declare_site)
@@ -227,10 +243,9 @@ ERROR parsing PPDS-annotations in file {filename} line {line_no}:
 
 {e.detail}
             """
-            )  # TODO: this somehow catches too many exceptions
-            # raise
+            )
             exit(1)
-        except Exception as e:
+        except Exception:
             print(f"""
 An unknown problem occured during parsing of your source-file. See stacktrace below.            
 This could be due to a error in your code or in PPDS.
@@ -238,7 +253,8 @@ Even if your code is wrong, PPDS should be able to give you a hint on what is wr
 Problematic code is in file {filename}  line {line_no}:
 {line}
 """)
-            traceback.print_tb(e.__traceback__)
+            print(traceback.print_exc())
+            exit(1)
 
     assert len(defstack) == len(undefstack)
     if len(defstack) > 0:
@@ -286,11 +302,13 @@ for filename in files:
     pp_dataclasses = [] # all pp_dataclasses found in this specific file
     for name in source_names:
         try:
+            print(f"will now look for source with name {name}")
             source_filename = f"PPDS_SOURCE_{name}.h"
             with open(os.path.join(ppds_source_header_dir, source_filename)) as f:
                 source_string = f.read()
             source_strings.append(source_string)
             pp_dataclasses.append(PreprocessorDataClass(name, source_string))
+            print("dataclasses are now: ", pp_dataclasses)
         except PPDSParseError as e:
             print(
                 f"""

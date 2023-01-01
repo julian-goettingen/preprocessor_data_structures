@@ -9,9 +9,16 @@ class CFunctionArrayParam:
     name: str
     primitive_type: str
     pointer_type: str
-    dims: List[int]
+    dims: List[str]
 
-def make_c_function_array_param(decl):
+    def get_expanded_names(self):
+        return [self.name] + self.dims
+
+    def get_expanded_with_types(self):
+        return [self.pointer_type + self.name] + ["size_t "+d for d in self.dims]
+
+def make_c_function_array_param(decl) -> CFunctionArrayParam:
+
     print("making class of: ", decl)
     return None
 
@@ -20,6 +27,12 @@ def make_c_function_array_param(decl):
 class CFunctionPrimitiveParam:
     name: str
     primitive_type: str
+
+    def get_expanded_names(self):
+        return [self.name]
+
+    def get_expanded_with_types(self):
+        return [self.primitive_type + " " + self.name]
 
 
 @dataclass
@@ -48,7 +61,7 @@ def _find_and_replace_arr_defs(text: str) -> (str, List[Match[str]]):
     return res, matches
 
 
-def read_func_decl(text):
+def read_func_decl(text) -> CFunctionDef:
 
     # find array-definitions
     # parse array-definitions seperately
@@ -56,14 +69,17 @@ def read_func_decl(text):
     # parse remaining declaration with placeholders
     # replace placeholders with their real array-type
 
-
     text, matches = _find_and_replace_arr_defs(text)
     text = f"typedef int {SPECIAL_PPDS_PSEUDO_TYPE}; {text};"
     midx = 0
 
     ast = parser.parse(text)
     name = ast.ext[1].name
-    rettype = ast.ext[1].type.type.type.names[0]
+
+    # check if rettype is char*
+    # check_returns_charp(ast.ext[1])
+    # rettype = ast.ext[1].type
+    # if (retty)
     params = []
     args = ast.ext[1].type.args
     if args: # empty args need special handling because otherwise args.params cant be accessed
@@ -78,4 +94,4 @@ def read_func_decl(text):
 
     assert(midx == len(matches))
 
-    return CFunctionDef(name, rettype, params)
+    return CFunctionDef(name, "int", params)

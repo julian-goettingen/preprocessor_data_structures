@@ -1,6 +1,29 @@
 import src.parse
-from src.parse import parse_args_string, split_smart
+from src.parse import parse_args_string, split_smart, flat_append_in_place
 
+from PPDS.src.parse import flatten_specials
+
+
+def test_flat_append_in_place():
+
+    d1 = {"a": True, "b": 1}
+    d2 = {"more": "hello"}
+    flat_append_in_place(d1, "c", d2)
+    assert d1 == {"a": True, "b": 1, "c_more": "hello"}
+
+def test_flat_append_in_place_longer():
+
+    d1 = {"a": True, "b": 1}
+    d2 = {"more": "hello", "even_more": "world"}
+    flat_append_in_place(d1, "c", d2)
+    assert d1 == {"a": True, "b": 1, "c_more": "hello", "c_even_more": "world"}
+
+def test_flat_append_in_place_empty():
+
+    d1 = {"a": True, "b": 1}
+    d2 = {}
+    flat_append_in_place(d1, "c", d2)
+    assert d1 == {"a": True, "b": 1}
 
 def test_split_smart_1():
     assert split_smart("a, a3==a4") == ["a", "a3==a4"]
@@ -72,3 +95,49 @@ def test_argparsing_4():
     res = parse_args_string("(1,2,3)", posargs, kwargnames)
 
     assert res == {"a": "1", "long_arg_name": "2", "c": "3"}
+
+def test_flatten_special_1():
+
+    argdict = {"a": "N : type(int)"}
+    res = flatten_specials(argdict)
+    assert res == {"a":"N", "a_type": "int"}
+
+def test_flatten_special_2():
+
+    argdict = {"a": "N : elementtype(int)"}
+    res = flatten_specials(argdict)
+    assert res == {"a":"N", "a_elementtype": "int"}
+
+def test_flatten_special_3():
+
+    argdict = {"a": "N : type(int *)"}
+    res = flatten_specials(argdict)
+    assert res == {"a":"N", "a_type": "int *"}
+
+
+
+def test_flatten_special_with_multiple():
+
+    argdict = {"a": "N : type(int), issafe(true)"}
+    res = flatten_specials(argdict)
+    assert res == {"a":"N", "a_type": "int", "a_issafe": True}
+
+
+def test_with_simple_append():
+
+    posargs = ["a"]
+    kwargnames = []
+    res = parse_args_string("(N : special)", posargs, kwargnames)
+
+    assert  res == {"a":"N", "a_special": True}
+
+# das ganze parsen bringt wenig Mehrwert...
+# lieber ein Makro, was die Argumente nimmt und dann selber eine Funktion draus macht, zB const char* - Funktion
+# die Hoffnung war durch das parsen komische Funktionen zu unterstuetzen, so wie cuda-funktionen, aber das klappt eh nicht,
+# wenn der parser so intolerant ist. Es ist eben parsing und nicht webscraping
+#
+# also was fehlt dann:
+# die arr-sources so erweitern, dass Typen moeglich sind (:-Syntax, der dann einfach angehaengt wird)
+# den dataclasses erlauben zu erkennen, wenn ihre Argumente nicht nur strings sondern dataclasses sind
+# (--> vlt sogar verlangen als Typ?)
+# die dataclasses muessen optional viele Argumente haben koennen, damit man die Funktionen damit definieren kann.
