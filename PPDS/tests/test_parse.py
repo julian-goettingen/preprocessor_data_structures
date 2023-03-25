@@ -87,6 +87,13 @@ def test_argparsing_3():
 
     assert res == {"b": "f(3)+2"}
 
+def test_argparsing_accepts_dollar_sign():
+    posargs = []
+    kwargnames = ['a']
+    res = parse_args_string(r'(a=$M)', posargs, kwargnames)
+
+    assert res == {'a': '$M'}
+
 
 def test_argparsing_4():
 

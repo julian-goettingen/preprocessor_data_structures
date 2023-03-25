@@ -14,7 +14,7 @@ class PPDSConfig():
     pygen_target_loc: str
     pygen_usables_loc: str
     search_paths: list[str]
-    global_default_params: dict[str, Union[str,int]]
+    global_default_params: dict[str, Union[str, int]]
 
 
 def _ensure_valid_dir(path, allow_none=False):

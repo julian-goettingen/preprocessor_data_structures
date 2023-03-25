@@ -1,18 +1,49 @@
-from typing import Dict
+from __future__ import annotations
+from typing import Dict, Any
 
 from PPDS.src import template_factory, util
 from PPDS.src.config import get_config
 from PPDS.src.parse import parse_args_string, make_arg_dict
+from parse_err import PPDSParseError
 import re
+
+
+def expand_argdict_in_place(argdict: Dict[str, Any], known_objects: Dict[str, Any]):
+
+    for key, val in argdict.items():
+        val_stripped = val.strip()
+        if val_stripped.startswith("$"):
+            obj_name = val_stripped[1:]
+            if obj_name in known_objects:
+                argdict[key] = known_objects[obj_name]
+            else:
+                raise PPDSParseError(
+                    f"Referencing an unknown object: {obj_name}\n"
+                    f"Known objects are: {known_objects.keys()}\n"
+                )
+
+
+class PreprocessorDataClassInstance:
+    def __init__(
+        self, argdict: Dict[str, str], declare_site: str, klass: PreprocessorDataClass
+    ):
+
+        self.argdict = argdict
+        self.declare_site = declare_site
+        self.klass = klass
+        self.is_expanded = False
+
+    def render_def(self):
+        pass
 
 
 class PreprocessorDataClass:
     """
-    represents the data contained in a PPDS_SOURCE-file
-    that is: templates and default-arguments
-    default-arguments from the file can be overridden by the global default-params
+    class whose immutable instances represent the data contained in a PPDS_SOURCE-file
+    that is: templates, default-arguments, constructors
+    default-arguments are taken from the file unless overridden by global default-params
 
-    parse_args creates a new python-instance of the DataClass from the arguments of a constructor
+    parse_args creates a new python-instance of the argdict from the arguments of a constructor
     """
 
     def __init__(self, name, source_string, local_get_config=get_config):

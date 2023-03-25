@@ -79,9 +79,10 @@ def flatten_specials(argdict):
     return res
 
 
-TYPE_REX = re.compile(r"type\((\w+)\)")
+TYPE_REX = re.compile(r"type\(([a-zA-Z0-9 *]+)\)")
 ELEMENTTYPE_REX = re.compile(r"elementtype\((\w+)\)")
 ISSAFE_REX = re.compile(r"issafe\((true|false)\)")
+SPECIAL_REX = re.compile(r"special")
 
 
 def annotation_to_dict(a: str):
@@ -93,6 +94,8 @@ def annotation_to_dict(a: str):
     elif m := ISSAFE_REX.match(a):
         boolval = True if m.group(1) == "true" else False
         return {"issafe": boolval}
+    elif m := SPECIAL_REX.match(a):
+        return {'special': True}
 
     raise PPDSParseError(f"Unknown or misused annotation {a}")
 
