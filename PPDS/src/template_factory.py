@@ -1,3 +1,5 @@
+from typing import Tuple, List, Dict
+
 import jinja2
 import re
 from parse_err import PPDSParseError
@@ -87,7 +89,7 @@ def get_constructors_from_source_string(source_string):
     return constr_rexes
 
 
-def get_args_from_source_string(source_string):
+def get_args_from_source_string(source_string) -> Tuple[List[str], Dict[str, str]]:
 
     try:
         json_args = re.search(ARGS_GETTER_REX, source_string).group(1)
@@ -95,7 +97,7 @@ def get_args_from_source_string(source_string):
         raise PPDSParseError("Failed to extract PPDS_ARGS definition from header-file.")
 
     try:
-        raw_args = json.loads(json_args)
+        raw_args: Dict[str, str] = json.loads(json_args)
     except JSONDecodeError as e:
         # todo: highlight problematic character with: \n{e.doc[e.pos]}
         raise PPDSParseError(

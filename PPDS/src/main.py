@@ -8,6 +8,10 @@ import os.path
 from glob import glob
 from pathlib import Path
 
+import typeguard
+typeguard.config.collection_check_strategy = typeguard.CollectionCheckStrategy.ALL_ITEMS
+typeguard.install_import_hook(['parse', 'handle_file', 'PreprocessorDataClass', 'template_factory', 'config'])
+
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 # print(__file__)
@@ -18,6 +22,7 @@ sys.path.extend([
 ])
 print(sys.path)
 
+from PPDS.src.handle_file import handle_file
 from PPDS.src.post_process_args import post_process_args_in_place
 from PPDS.src.PreprocessorDataClass import PreprocessorDataClass
 from parse import PPDSParseError, parse_args_string
@@ -286,6 +291,25 @@ for s in conf.search_paths:
 print("ppds preparing files: ", files)
 
 
+for filename in files:
+    with open(filename, 'r') as f:
+        # preserves line numbers
+        code = util.remove_comments(f.read())
+    try:
+        handle_file(code)
+
+    except PPDSParseError as e:
+        print(
+            f"""
+ERROR related to file {filename} :
+
+{e.reason}
+
+{e.detail}
+            """
+        )
+        exit(1)
+
 
 # the approach is to get the PPDS_SOURCE-files used by each file,
 # turn that source-file into the PPDSDataClass,
@@ -293,36 +317,36 @@ print("ppds preparing files: ", files)
 # this is not the most efficient way to do it but it works
 
 
-for filename in files:
-
-    with open(filename, "r") as f:
-        # preserves line numbers
-        code = util.remove_comments(f.read())
-
-    source_names = re.findall(SOURCE_REX, code)
-    source_strings = []
-    pp_dataclasses = [] # all pp_dataclasses found in this specific file
-    for name in source_names:
-        try:
-            print(f"will now look for source with name {name}")
-            source_filename = f"PPDS_SOURCE_{name}.h"
-            with open(os.path.join(ppds_source_header_dir, source_filename)) as f:
-                source_string = f.read()
-            source_strings.append(source_string)
-            pp_dataclasses.append(PreprocessorDataClass(name, source_string))
-            print("dataclasses are now: ", pp_dataclasses)
-        except PPDSParseError as e:
-            print(
-                f"""
-ERROR related to file {source_filename} :
-
-{e.reason}
-
-{e.detail}
-                """
-            )
-            exit(1)
-
-    for ppc in pp_dataclasses:
-        handle_code(ppc, code, filename)
-    print(pp_dataclasses)
+# for filename in files:
+#
+#     with open(filename, "r") as f:
+#         # preserves line numbers
+#         code = util.remove_comments(f.read())
+#
+#     source_names = re.findall(SOURCE_REX, code)
+#     source_strings = []
+#     pp_dataclasses = [] # all pp_dataclasses found in this specific file
+#     for name in source_names:
+#         source_filename = f"PPDS_SOURCE_{name}.h"
+#         print(f"will now look for source with name {name}")
+#         try:
+#             with open(os.path.join(ppds_source_header_dir, source_filename)) as f:
+#                 source_string = f.read()
+#             source_strings.append(source_string)
+#             pp_dataclasses.append(PreprocessorDataClass(name, source_string))
+#             print("dataclasses are now: ", pp_dataclasses)
+#         except PPDSParseError as e:
+#             print(
+#                 f"""
+# ERROR related to file {source_filename} :
+#
+# {e.reason}
+#
+# {e.detail}
+#                 """
+#             )
+#             exit(1)
+#
+#     for ppc in pp_dataclasses:
+#         handle_code(ppc, code, filename)
+#     print(pp_dataclasses)
