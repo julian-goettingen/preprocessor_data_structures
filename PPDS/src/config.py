@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 import json
-from dataclasses import dataclass
+
+from pydantic import ValidationError
+from pydantic.dataclasses import dataclass
 from typing import Union, Dict, List
 import os
-from typeguard import check_type
 
 from requests import JSONDecodeError
 
@@ -13,12 +14,12 @@ class PPDSConfig:
     source_header_loc: str
     target_header_loc: str
     interface_desc_loc: str
-    pygen_target_loc: str
-    pygen_usables_loc: str
+    pygen_target_loc: str | None
+    pygen_usables_loc: str | None
     search_paths: List[str]
     global_default_params: Dict[str, str]
 
-    wie typechecked man den input in die dataclass?
+
 
 
 def _ensure_valid_dir(config, name, allow_none=False):
@@ -110,6 +111,11 @@ def _read() -> PPDSConfig:
     try:
         res = PPDSConfig(**config)
         return res
+    except ValidationError as e:
+        print(f"""
+        Config-file has validation-errors, see below:
+        {e}
+        """)
     except:
         print("failed to understand config-file. Reason: ", e)
         exit(1)

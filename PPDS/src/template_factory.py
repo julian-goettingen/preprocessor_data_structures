@@ -1,4 +1,5 @@
-from typing import Tuple, List, Dict
+from typing import Any, Tuple, List, Dict
+from typeguard import check_type, TypeCheckError
 
 import jinja2
 import re
@@ -97,13 +98,13 @@ def get_args_from_source_string(source_string) -> Tuple[List[str], Dict[str, str
         raise PPDSParseError("Failed to extract PPDS_ARGS definition from header-file.")
 
     try:
-        raw_args: Dict[str, str] = json.loads(json_args)
+        raw_args = json.loads(json_args)
     except JSONDecodeError as e:
         # todo: highlight problematic character with: \n{e.doc[e.pos]}
         raise PPDSParseError(
             f"Args found in header file, but it is not valid json. Args found: \n{json_args}\n\n Problem: \n{e}\n"
         )
-
+    
     if not isinstance(raw_args, dict):
         raise PPDSParseError(
             f"ARGS must be valid dictionary, but found {raw_args} of type {type}"
@@ -118,6 +119,16 @@ def get_args_from_source_string(source_string) -> Tuple[List[str], Dict[str, str
     args = list(raw_args["args"])
     kwargs = dict(raw_args["kwargs"])
 
+
+    try:
+        check_type(kwargs, Dict[str, str])
+    except TypeCheckError as e:
+        raise PPDSParseError(f"Found invalid keyword-arguments in source-file: {kwargs}\nkeys and values of mapping must be strings\nError: {e}")
+    try:
+        check_type(args, List[str])
+    except TypeCheckError as e:
+        raise PPDSParseError(f"Found invalid positional arguments in source-file: {args}\n must be a list of strings\nError: {e}")
+    
     return args, kwargs
 
 

@@ -10,7 +10,7 @@
 /* PPDS_ARGS:
 {
   "args": ["name", "pointer", "len"],
-  "kwargs": {"skip_checks": "NDEBUG", "numpy_wraparound": 0, "panic": "exit(1)", "print_element":"PRINT", "print_idx":"PRINT", "print_base":"PRINT"}
+  "kwargs": {"skip_checks": "NDEBUG", "numpy_wraparound": "0", "panic": "exit(1)", "print_element":"PRINT", "print_idx":"PRINT", "print_base":"PRINT"}
 }
 */
 

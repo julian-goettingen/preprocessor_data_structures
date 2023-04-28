@@ -97,8 +97,12 @@ class PreprocessorDataClass:
             source_string
         )
 
+        print('kwargs in instantiation of dataclass are (1) ', self.kwargs)
+
         # global default params take precedence over defaults in header
         self.kwargs.update(local_get_config().global_default_params)
+
+        print('kwargs in instantiation of dataclass are (2) ', self.kwargs)
 
         self.constructor_list = template_factory.get_constructors_from_source_string(
             source_string

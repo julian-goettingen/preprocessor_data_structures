@@ -9,7 +9,7 @@
 /* PPDS_ARGS:
 {
 "args": ["name", "pointer", "nx", "ny"],
-"kwargs": {"skip_checks": "NDEBUG", "numpy_wraparound": 0, "panic": "exit(1)"}
+"kwargs": {"skip_checks": "NDEBUG", "numpy_wraparound": "0", "panic": "exit(1)"}
 }
 */
 
