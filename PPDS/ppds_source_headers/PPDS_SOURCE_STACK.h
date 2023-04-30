@@ -26,10 +26,12 @@
 // args mapping to an (ordered) list of names,
 // kwargs mapping to a dict of names and default values
 /* PPDS_ARGS:
-{
-"args": ["name", "pointer", "maxsize"],
-"kwargs": {"skip_checks": "NDEBUG"}
-}
+args:
+    - name
+    - pointer
+    - maxsize
+kwargs:
+    skip_checks: NDEBUG
 */
 
 

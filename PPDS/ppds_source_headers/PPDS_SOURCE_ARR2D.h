@@ -7,10 +7,15 @@
 
 
 /* PPDS_ARGS:
-{
-"args": ["name", "pointer", "nx", "ny"],
-"kwargs": {"skip_checks": "NDEBUG", "numpy_wraparound": "0", "panic": "exit(1)"}
-}
+args:
+    - name
+    - pointer
+    - nx
+    - ny
+kwargs:
+    skip_checks: NDEBUG
+    numpy_wraparound: "0"
+    panic: exit(1)
 */
 
 /* PPDS_CONSTRUCTORS:

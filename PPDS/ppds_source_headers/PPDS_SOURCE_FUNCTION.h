@@ -4,10 +4,10 @@
 // definition is the whole definition/declaration of the function and gets special treatment.
 // more properties will be generated from it in the object
 /* PPDS_ARGS:
-{
- "args": ["func_name", "definition"],
- "kwargs": {}
-}
+args:
+    - func_name
+    - definition
+kwargs: {}
 */
 
 //"\\s*PPDS_FUNCTION\\((.*)\\)(?=\s*[;)"

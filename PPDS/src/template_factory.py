@@ -6,8 +6,8 @@ import re
 from parse_err import PPDSParseError
 import config
 
-import json
-from json import JSONDecodeError
+import yaml
+from yaml import YAMLError, MarkedYAMLError
 
 import jinja_callable
 
@@ -47,18 +47,19 @@ def get_template_from_source(source_filename):
 def get_constructors_from_source_string(source_string):
 
     try:
-        json_args = re.search(CONSTRUCTOR_GETTER_REX, source_string).group(1)
+        yaml_args = re.search(CONSTRUCTOR_GETTER_REX, source_string).group(1)
     except:
         raise PPDSParseError(
             "Failed to extract PPDS_CONSTRUCTORS definition from header-file."
         )
 
     try:
-        raw_constructors = json.loads(json_args)
-    except JSONDecodeError as e:
-        # todo: highlight problematic character with: \n{e.doc[e.pos]}
+        raw_constructors = yaml.safe_load(yaml_args)
+    except YAMLError as e:
+        # todo: highlight problematic character with: \n{e.doc[e.pos]} <=== this was for json
+        # similar thing possible for yaml?
         raise PPDSParseError(
-            f"Constructors found in header file, but it is not valid json. Args found: \n{json_args}\n\n Problem: \n{e}\n"
+            f"Constructors found in header file, but it is not valid yaml. Args found: \n{yaml_args}\n\n Problem: \n{e}\n"
         )
 
     if not isinstance(raw_constructors, list):
@@ -93,16 +94,16 @@ def get_constructors_from_source_string(source_string):
 def get_args_from_source_string(source_string) -> Tuple[List[str], Dict[str, str]]:
 
     try:
-        json_args = re.search(ARGS_GETTER_REX, source_string).group(1)
+        yaml_args = re.search(ARGS_GETTER_REX, source_string).group(1)
     except:
         raise PPDSParseError("Failed to extract PPDS_ARGS definition from header-file.")
 
     try:
-        raw_args = json.loads(json_args)
-    except JSONDecodeError as e:
-        # todo: highlight problematic character with: \n{e.doc[e.pos]}
+        raw_args = yaml.safe_load(yaml_args)
+    except YAMLError as e:
+        # todo: highlight problematic character with: \n{e.doc[e.pos]} <== that was for json
         raise PPDSParseError(
-            f"Args found in header file, but it is not valid json. Args found: \n{json_args}\n\n Problem: \n{e}\n"
+            f"Args found in header file, but it is not validyaml. Args found: \n{yaml_args}\n\n Problem: \n{e}\n"
         )
     
     if not isinstance(raw_args, dict):
@@ -116,6 +117,7 @@ def get_args_from_source_string(source_string) -> Tuple[List[str], Dict[str, str
             f"invalid PPDS_ARGS, keys must be {expect_keys} but are {raw_args.keys()}.\nFull args:\n{raw_args}"
         )
 
+    print(raw_args)
     args = list(raw_args["args"])
     kwargs = dict(raw_args["kwargs"])
 

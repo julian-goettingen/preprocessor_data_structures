@@ -7,9 +7,13 @@
 
 
 /* PPDS_ARGS:
-{
-  "args": ["name", "arg1", "arg2"],
-  "kwargs": {"skip_checks": "NDEBUG", "panic": "exit(1)", "print_base":"PRINT"}
+args:
+    - name
+    - _var_args_
+kwargs:
+    skip_checks: NDEBUG
+    panic: exit(1)
+    print_base: PRINT
 }
 */
 
