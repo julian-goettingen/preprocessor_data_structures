@@ -108,7 +108,7 @@ def get_args_from_source_string(source_string) -> Tuple[List[str], Dict[str, str
     
     if not isinstance(raw_args, dict):
         raise PPDSParseError(
-            f"ARGS must be valid dictionary, but found {raw_args} of type {type}"
+            f"ARGS must be valid dictionary, but {yaml_args} was decoded to {raw_args} of type {type(raw_args)}"
         )
 
     expect_keys = {"args", "kwargs"}
@@ -117,7 +117,6 @@ def get_args_from_source_string(source_string) -> Tuple[List[str], Dict[str, str
             f"invalid PPDS_ARGS, keys must be {expect_keys} but are {raw_args.keys()}.\nFull args:\n{raw_args}"
         )
 
-    print(raw_args)
     args = list(raw_args["args"])
     kwargs = dict(raw_args["kwargs"])
 
