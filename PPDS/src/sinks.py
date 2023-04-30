@@ -77,10 +77,10 @@ def get_header_file_path(dir: str, filename: str):
 
 
 class HeaderStack:
-    def __init__(self, _get_config=get_config):
+    def __init__(self, target_header_loc):
         self._undefs: List[PPDSTargetFile] = []
         self._defs: List[PPDSTargetFile] = []
-        self._config = _get_config()
+        self.target_header_loc = target_header_loc
 
     def new_undef(self, name):
 
@@ -95,7 +95,7 @@ class HeaderStack:
 
     def new_def(self, def_filename):
 
-        hloc = self._config.target_header_loc
+        hloc = self.target_header_loc
         undef_filename = undef_filename_from_def_filename(def_filename)
         defpath = get_header_file_path(hloc, def_filename)
         undefpath = get_header_file_path(hloc, undef_filename)

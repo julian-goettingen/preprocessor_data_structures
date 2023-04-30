@@ -1,6 +1,6 @@
 import os
 from abc import ABC
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 import re
 from PPDS.src.sinks import HeaderStack
 
@@ -40,11 +40,27 @@ def raise_unknown_dataclass(declare_type, classes):
         msg.append(f"Known dataclasses are: {classes.keys()}")
     raise PPDSParseError("\n".join(msg))
 
+class PPDSKnownClasses:
+
+    # ist das wirklich nötig?
+
+    def __init__(self):
+        self._classes : Dict[str, Tuple[PreprocessorDataClass, bool]] = {}
+    
+    def load_from_dir(self, source_header_loc):
+        ...
+
+    def activate(self, name):
+        ...
+    
+    def deactivate_all(self):
+        ...
 
 
 def handle_file(src, _get_config=get_config):
 
     conf = _get_config()
+
 
     # keys are names
     classes: Dict[str, PreprocessorDataClass] = {}
@@ -53,7 +69,7 @@ def handle_file(src, _get_config=get_config):
     instances: Dict[str, PreprocessorDataClassInstance] = {}
 
     # header-stack
-    headers = HeaderStack()
+    headers = HeaderStack(target_header_loc=conf.target_header_loc)
 
     while src:
         m = PPDS_ACTION_REX.search(src)
@@ -101,8 +117,6 @@ def handle_file(src, _get_config=get_config):
 
     if len(headers) > 0:
         raise PPDSParseError(f"target-defs left open: {headers}")
-    # eine sink braucht irgendwie eine Bedingung, um getriggert zu werden und dann über alle producers zu klettern.
-    # eigentlich nur das Ende des files
 
 
 # notes on error-handling
