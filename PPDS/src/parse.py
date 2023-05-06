@@ -1,7 +1,7 @@
 import copy
 import re
 from parse_err import PPDSParseError
-from typing import Dict, Any, Tuple, List
+from typing import Dict, Any, Tuple, List, Union
 
 
 def make_arg_dict(posargs, default_kwargs, argstring):
@@ -19,35 +19,58 @@ def make_arg_dict(posargs, default_kwargs, argstring):
 # this module is a mess but I only use parts of the code and there are lot of tests, TODO: refactor after big change of main
 # TODO: die specials sind noch broken in der neuen main (?)
 
-def raw_arglist_to_initialized_argdict(arglist: List[str], posarglist: List[str], kwargs: Dict[str, str]) -> Dict[str, str]:
+def is_positional(arg: str) -> bool:
+
+    if "=" in arg and "==" not in arg: # todo: this criterium is pretty much bs
+        return False
+    return True
+
+def raw_arglist_to_initialized_argdict(arglist: List[str], posarglist: List[str], kwargs: Dict[str, str]) -> Dict[str, Union[str, List[str]]]:
 
 
-    if len(arglist) < len(posarglist):
+
+    # check if number of positional arguments is OK
+    # empty for positional arguments is allowed
+    if len(arglist) < len(posarglist) - 1 or posarglist[-1] != "_var_args_" and len(arglist) < len(posarglist):
         raise PPDSParseError(
             "Not enough positional arguments",
-            detail=f"arglist {arglist} of length {len(arglist)} cannot satisfy required {len(posarglist)} positional arguments {posarglist}",
-        )
+            detail=f"arglist {arglist} of length {len(arglist)} cannot satisfy required positional arguments {posarglist}")
 
-    argdict = copy.deepcopy(kwargs)
+    argdict : Dict[str, Union[str, List[str]]] = copy.deepcopy(kwargs)
 
-    argnum = 0
-    # do positional arguments first
-    for arg, argname in zip(arglist, posarglist):
+    if posarglist[-1] == "_var_args_":
+        argdict["var_args"] = []
 
-        val = extract_valid_pos_arg(arg)
-        argdict[argname] = val
-        argnum += 1  # deliberately at bottom
+    # loops over arglist; is a statemachine on state 'mode'
+    mode = 0 # 0-> normal pos-arg, 1-> vararg, 2-> keyword-arg
+    for i, arg in enumerate(arglist):
 
-    # iterate through the rest of arglist to get the keyword-args
-    for arg in arglist[argnum:]:
-        argname, val = extract_valid_kw_arg(arg)
-        if argname not in kwargs:
-            raise PPDSParseError(
-                f"{argname} is not a valid keyword-argument. Must be one of {kwargs.keys()}"
-            )
-        argdict[argname] = val
+        if i < len(posarglist) and posarglist[i] == "_var_args_" and not i == len(posarglist)-1:
+            raise ValueError(f"illegal template has _var_args_ at position {i}")
 
-    # argdict = flatten_specials(argdict)
+        #################
+        # STATE TRANSITIONS::
+        if mode == 0 and i == len(posarglist):
+            mode = 2
+        if mode == 0 and i == len(posarglist) - 1 and posarglist[i] == "_var_args_":
+            mode = 1  # potentially triggering the next condition
+        if mode == 1 and not is_positional(arg):
+            mode = 2
+
+
+        #####################
+        # READING ARGUMENT::
+        if mode == 0:
+            val = extract_valid_pos_arg(arg)
+            argdict[posarglist[i]] = val
+        elif mode == 1:
+            val = extract_valid_pos_arg(arg)
+            argdict["var_args"].append(val)
+        elif mode == 2:
+            name, val = extract_valid_kw_arg(arg)
+            argdict[name] = val
+        else:
+            raise ValueError(f'mode must be 0, 1 or 2, was {mode}, this is a bug.')
 
     return argdict
 
@@ -173,17 +196,25 @@ def preprocess_raw_args(raw_args):
 
 # TODO: handle ==comparison and possibly even =assignment in brackets
 # both this function and the one for keywords dont allow == sign in values
-def extract_valid_pos_arg(s) -> str:
+def extract_valid_pos_arg(s: str) -> str:
 
-    if "=" in s and "==" not in s:
+    if not is_positional(s):
         raise PPDSParseError(
-            f"positional args error: {s} is not a proper positional argument"
+            f"""
+            positional args error: {s} is not a proper positional argument.
+            It appears to be a keyword-argument but a positional argument was expected.
+            """
         )
 
     return s.strip()
 
 
 def extract_valid_kw_arg(s: str) -> Tuple[str, str]:
+
+    if is_positional(s):
+        raise PPDSParseError(
+            f"Expected keyword argument but received what looks like a positional argument: {s}"
+        )
 
     byeq = s.split("=")
     name = byeq[0]

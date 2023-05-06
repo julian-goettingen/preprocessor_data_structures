@@ -90,13 +90,7 @@ def get_constructors_from_source_string(source_string):
 
     return constr_rexes
 
-
-def get_args_from_source_string(source_string) -> Tuple[List[str], Dict[str, str]]:
-
-    try:
-        yaml_args = re.search(ARGS_GETTER_REX, source_string).group(1)
-    except:
-        raise PPDSParseError("Failed to extract PPDS_ARGS definition from header-file.")
+def parse_yaml_args(yaml_args: str) -> Tuple[List[str], Dict[str, str]]:
 
     try:
         raw_args = yaml.safe_load(yaml_args)
@@ -105,7 +99,7 @@ def get_args_from_source_string(source_string) -> Tuple[List[str], Dict[str, str
         raise PPDSParseError(
             f"Args found in header file, but it is not validyaml. Args found: \n{yaml_args}\n\n Problem: \n{e}\n"
         )
-    
+
     if not isinstance(raw_args, dict):
         raise PPDSParseError(
             f"ARGS must be valid dictionary, but {yaml_args} was decoded to {raw_args} of type {type(raw_args)}"
@@ -129,8 +123,17 @@ def get_args_from_source_string(source_string) -> Tuple[List[str], Dict[str, str
         check_type(args, List[str])
     except TypeCheckError as e:
         raise PPDSParseError(f"Found invalid positional arguments in source-file: {args}\n must be a list of strings\nError: {e}")
-    
+
     return args, kwargs
+
+def get_args_from_source_string(source_string) -> Tuple[List[str], Dict[str, str]]:
+
+    try:
+        yaml_args = re.search(ARGS_GETTER_REX, source_string).group(1)
+    except:
+        raise PPDSParseError("Failed to extract PPDS_ARGS definition from header-file.")
+
+    return parse_yaml_args(yaml_args)
 
 
 def get_undef_template_from_source_string(source_string):
