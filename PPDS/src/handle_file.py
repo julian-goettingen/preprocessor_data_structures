@@ -61,7 +61,6 @@ def handle_file(src, _get_config=get_config):
 
     conf = _get_config()
 
-
     # keys are names
     classes: Dict[str, PreprocessorDataClass] = {}
 
@@ -70,6 +69,9 @@ def handle_file(src, _get_config=get_config):
 
     # header-stack
     headers = HeaderStack(target_header_loc=conf.target_header_loc)
+
+    # todo: string-slices are copies, not views, so this is very inefficient.
+    # is that the main reason this is slow?
 
     while src:
         m = PPDS_ACTION_REX.search(src)

@@ -97,7 +97,7 @@ def parse_yaml_args(yaml_args: str) -> Tuple[List[str], Dict[str, str]]:
     except YAMLError as e:
         # todo: highlight problematic character with: \n{e.doc[e.pos]} <== that was for json
         raise PPDSParseError(
-            f"Args found in header file, but it is not validyaml. Args found: \n{yaml_args}\n\n Problem: \n{e}\n"
+            f"Args found in header file, but it is not valid yaml. Args found: \n{yaml_args}\n\n Problem: \n{e}\n"
         )
 
     if not isinstance(raw_args, dict):

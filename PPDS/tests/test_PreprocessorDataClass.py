@@ -56,3 +56,11 @@ def test_expand_argdict_name_error():
 
     with pytest.raises(PPDSParseError, match=r"unknown object: b_obj") as e:
         expand_argdict_in_place(argdict, known_names)
+
+def test_expand_argdict_with_varargs():
+
+    argdict = {"a": "a_val", "var_args": ["$b_obj ", "$c_obj", "nonexpanded"]}
+    known_names = {"b_obj": {"more": "stuff"}, "c_obj": {"even": "more"}, "d_obj": {"something": "else"}}
+
+    expand_argdict_in_place(argdict, known_names)
+    assert argdict == {"a": "a_val", "var_args": [{"more": "stuff"}, {"even": "more"}, "nonexpanded"]}

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Union
 from typeguard import check_type, typechecked
 
 from PPDS.src import template_factory, util
@@ -20,25 +20,44 @@ def to_dict(d):
 
 
 def expand_argdict_in_place(
-    argdict: Dict[str, str],
+    argdict: Dict[str, Union[str, List[str]]],
     known_objects: Dict[str, PreprocessorDataClassInstance | dict],
 ):
     # hier funktioniert das expanden nicht weil im argdict irgendwie ints liegen, ausserdem die todos in parse.py beachten
     print("argdict before expand: ", argdict)
     print('known objects: ', known_objects)
     for key, val in argdict.items():
-        if not isinstance(val, str):
-            raise TypeError('values must be strings')
-        val_stripped = val.strip()
-        if val_stripped.startswith("$"):
-            obj_name = val_stripped[1:]
-            if obj_name in known_objects:
-                argdict[key] = to_dict(known_objects[obj_name])
-            else:
-                raise PPDSParseError(
-                    f"Referencing an unknown object: {obj_name}\n"
-                    f"Known objects are: {known_objects.keys()}\n"
-                )
+        if key == "var_args": # special casing for varargs
+            if not isinstance(val, List):
+                raise TypeError('varargs must be list')
+            for i, v in enumerate(val):
+                if not isinstance(v, str):
+                    raise ValueError('values of varargs must be str')
+
+                
+                val_stripped = v.strip()
+                if val_stripped.startswith("$"):
+                    obj_name = val_stripped[1:]
+                    if obj_name in known_objects:
+                        val[i] = to_dict(known_objects[obj_name])
+                    else:
+                        raise PPDSParseError(
+                            f"Referencing an unknown object: {obj_name}\n"
+                            f"Known objects are: {known_objects.keys()}\n"
+                        )
+        else: # not varargs
+            if not isinstance(val, str):
+                raise TypeError('values must be strings')
+            val_stripped = val.strip()
+            if val_stripped.startswith("$"):
+                obj_name = val_stripped[1:]
+                if obj_name in known_objects:
+                    argdict[key] = to_dict(known_objects[obj_name])
+                else:
+                    raise PPDSParseError(
+                        f"Referencing an unknown object: {obj_name}\n"
+                        f"Known objects are: {known_objects.keys()}\n"
+                    )
 
 
 class PreprocessorDataClassInstance:
