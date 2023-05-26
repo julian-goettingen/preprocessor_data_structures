@@ -9,13 +9,13 @@
 
 
 PPDS_DECLARE_FUNCTION_NEW(sum, a : type(int), b : type(int)) {
-    return 1;
+    return a+b;
 }
 
 
 int main() {
 
-    if (sum(1,2) != 1) {
+    if (sum(1,2) != 3) {
         return 1;
     }
 
