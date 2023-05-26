@@ -10,7 +10,7 @@ parametrize = pytest.mark.parametrize
 
 
 @parametrize(
-    ("dir", "compiler"), it.product(tut.test_dir_list, tut.compiler_list.items())
+    ("compiler", "dir"), it.product(tut.compiler_list.items(), tut.test_dir_list)
 )
 def test_integration(dir, compiler):
 

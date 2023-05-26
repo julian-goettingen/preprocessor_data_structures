@@ -23,17 +23,20 @@ kwargs:
  */
 
 
-braucht Variable Zahl von Argumenten und muss die expansions benutzen können...
 
 /* PPDS_DEF:
 
-#define PPDS_FUNCTION_{{name}} int {{name}}({{var_args[0]}}, {{var_args[1]}})
+// a 'function call' is actually this macro expansion
+#define {{name}} {{name}}_def
+
+// for the function declaration/definition
+#define PPDS_FUNCTION_{{name}} int {{name}}_def({% for arg in var_args %} {{arg}} {% endfor %})
 */
 
 /* PPDS_UNDEF:
 */
 
-#define PPDS_DECLARE_SOURCE_FUNCTION_NEW(name, __VAR_ARGS__) PPDS_FUNCTION_##name
+#define PPDS_DECLARE_FUNCTION_NEW(name, ...) PPDS_FUNCTION_##name
 
 
 

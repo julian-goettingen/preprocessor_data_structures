@@ -23,7 +23,6 @@ def expand_argdict_in_place(
     argdict: Dict[str, Union[str, List[str]]],
     known_objects: Dict[str, PreprocessorDataClassInstance | dict],
 ):
-    # hier funktioniert das expanden nicht weil im argdict irgendwie ints liegen, ausserdem die todos in parse.py beachten
     print("argdict before expand: ", argdict)
     print('known objects: ', known_objects)
     for key, val in argdict.items():

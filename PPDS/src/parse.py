@@ -17,7 +17,6 @@ def make_arg_dict(posargs, default_kwargs, argstring):
     return argdict
 
 # this module is a mess but I only use parts of the code and there are lot of tests, TODO: refactor after big change of main
-# TODO: die specials sind noch broken in der neuen main (?)
 
 def is_positional(arg: str) -> bool:
 
@@ -26,7 +25,6 @@ def is_positional(arg: str) -> bool:
     return True
 
 def raw_arglist_to_initialized_argdict(arglist: List[str], posarglist: List[str], kwargs: Dict[str, str]) -> Dict[str, Union[str, List[str]]]:
-
 
 
     # check if number of positional arguments is OK
@@ -72,6 +70,7 @@ def raw_arglist_to_initialized_argdict(arglist: List[str], posarglist: List[str]
         else:
             raise ValueError(f'mode must be 0, 1 or 2, was {mode}, this is a bug.')
 
+    flatten_specials(argdict)
     return argdict
 
 def raw_arglist_to_argdict(arglist, posarglist, kwargnames):
@@ -114,31 +113,73 @@ def parse_args_string(raw_args, posarglist, kwargnames):
     return raw_arglist_to_argdict(arglist, posarglist, kwargnames)
 
 
-COLON_REX = re.compile(r"(?<!:):(?!:)")  # matches ":" but not "::" to allow namespaces
+COLON_REX = re.compile(r"(?<!:):(?!:)")  # matches ":" but not "::" to allow cpp-namespaces
 
 
-def flatten_specials(argdict: Dict[str, str]):
+class FlatVar:
+
+    def __init__(self, value : str, annotations: Union[Dict[str, str], None] = None):
+        self._value = value
+        if annotations is not None:
+            self.__dict__.update(annotations)
+
+    @staticmethod
+    def of_string(s : str): # todo: this would be a good place to add value-checking
+
+        m = COLON_REX.split(s)
+        if len(m) == 1:
+            # no special annotations; keep it as is
+            return FlatVar(s, {})
+        elif len(m) == 2:
+            # special annotations present; append them separately
+            value = m[0].strip()
+            annotations = split_smart(m[1])
+            anno_dict = {k:v for k,v in map(annotation_to_kv, annotations)}
+            return FlatVar(value, anno_dict)
+        else:
+            raise PPDSParseError(
+                f"Illegal pattern of colons (':') in argument,"
+                f"an argument should be of the form"
+                f'"val" or "val : extra_info(stuff)" or "val : extra_info(stuff), more_info(more_stuff)"'
+                f"the c++-namespace-syntax ('::') is supported"
+            )
+    def __str__(self):
+        return self._value
+
+    def __eq__(self, other):
+        # todo: must do instance-check actually, but imports are broken af
+        return self._value == other._value and self._get_anno_dict() == other._get_anno_dict()
+
+    def _get_anno_dict(self):
+        return {k:v for k,v in self.__dict__.items() if not k.startswith('__') and not k == "_value"}
+
+    def __repr__(self):
+        print("callling repr on FlatVar ", self, self._value, self._get_anno_dict(), type(self))
+        try:
+            print("trying to make the value")
+            res = f"FlatVar(value='{self._value}', annotations={ self._get_anno_dict() })"
+            print("returning value", res)
+            return res
+        except Exception as e:
+            print("returning an exception-str")
+            return "repr threw: "+str(e)
+
+
+def flatten_specials(argdict: Dict[str, Union[str, List[str]]]) -> Dict[str, FlatVar]:
+    
 
     res = {}
     for k, v in argdict.items():
-        m = COLON_REX.split(v)
-        if len(m) == 1:
-            # no special annotations; keep it as is
-            res[k] = v
-        elif len(m) == 2:
-            # special annotations present; append them separately
-            res[k] = m[0].strip()
-            annotations = split_smart(m[1])
-            for a in annotations:
-                anno_dict = annotation_to_dict(a)
-                flat_append_in_place(res, k, anno_dict)
+        if k == "var_args":
+            if not isinstance(v, list):
+                raise ValueError(f"varargs must be list")
+            res["var_args"] = [FlatVar.of_string(val) for val in v]
         else:
-            raise PPDSParseError(
-                f"Illegal pattern of colons (':') in argument {v} for parameter {k},"
-                f"an argument should be of the form"
-                f'"val" or "val : extra_info(stuff)" or "val : extra_info(stuff), more_info(more_stuff)")'
-                f"the c++-namespace-syntax ('::') is supported"
-            )
+            if not isinstance(v, str):
+                raise ValueError(f"values should be str, was k={k}, v={v}")
+
+            res[k] = FlatVar.of_string(v)
+
 
     return res
 
@@ -149,17 +190,17 @@ ISSAFE_REX = re.compile(r"issafe\((true|false)\)")
 SPECIAL_REX = re.compile(r"special")
 
 
-def annotation_to_dict(a: str):
+def annotation_to_kv(a: str) -> Tuple[str, str]:
 
     if m := TYPE_REX.match(a):
-        return {"type": m.group(1)}
+        return "type", m.group(1)
     elif m := ELEMENTTYPE_REX.match(a):
-        return {"elementtype": m.group(1)}
+        return "elementtype", m.group(1)
     elif m := ISSAFE_REX.match(a):
         boolval = True if m.group(1) == "true" else False
-        return {"issafe": boolval}
+        return "issafe", boolval
     elif m := SPECIAL_REX.match(a):
-        return {"special": True}
+        return "special", True
 
     raise PPDSParseError(f"Unknown or misused annotation {a}")
 

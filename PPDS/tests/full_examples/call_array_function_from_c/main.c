@@ -8,14 +8,14 @@
 #include "PPDS_DEF_1.h"
 
 
-PPDS_DECLARE_FUNCTION_NEW(sum, int a, int b) {
-    return a + b;
+PPDS_DECLARE_FUNCTION_NEW(sum, a : type(int), b : type(int)) {
+    return 1;
 }
 
 
 int main() {
 
-    if (sum(1,2) != 3) {
+    if (sum(1,2) != 1) {
         return 1;
     }
 
