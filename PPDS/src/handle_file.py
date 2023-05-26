@@ -88,7 +88,7 @@ def handle_file(src, _get_config=get_config):
             inst = klass.make_instance(
                 arglist, declare_site="(TODO)", known_objects=instances
             )  # todo: declare_site
-            instances[inst.name] = inst
+            instances[inst.name.get_value()] = inst
 
             print('added instance: ', inst)
             headers.new_instance(inst)

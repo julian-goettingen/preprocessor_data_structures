@@ -146,6 +146,9 @@ class FlatVar:
     def __str__(self):
         return self._value
 
+    def get_value(self):
+        return self._value
+
     def __eq__(self, other):
         # todo: must do instance-check actually, but imports are broken af
         return self._value == other._value and self._get_anno_dict() == other._get_anno_dict()

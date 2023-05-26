@@ -10,7 +10,7 @@ from PPDS.src.parse import parse_args_string, make_arg_dict
 from parse_err import PPDSParseError
 import re
 
-from src.parse import raw_arglist_to_argdict, raw_arglist_to_initialized_argdict
+from src.parse import raw_arglist_to_argdict, raw_arglist_to_initialized_argdict, flatten_specials
 
 
 def to_dict(d):
@@ -68,8 +68,9 @@ class PreprocessorDataClassInstance:
         known_objects: Dict[str, PreprocessorDataClassInstance],
     ):
 
-        self.argdict = copy.deepcopy(raw_argdict)
-        expand_argdict_in_place(self.argdict, known_objects)
+        argdict = copy.deepcopy(raw_argdict)
+        expand_argdict_in_place(argdict, known_objects)
+        self.argdict = flatten_specials(argdict)
         self.declare_site = declare_site
         self.klass = klass
 
