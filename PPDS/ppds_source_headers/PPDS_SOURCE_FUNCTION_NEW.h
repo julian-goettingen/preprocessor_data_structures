@@ -31,6 +31,9 @@ kwargs:
 
 // for the function declaration/definition
 #define PPDS_FUNCTION_{{name}} int {{name}}_def({% for arg in var_args %} {{arg.type}} {{arg}}{{ "," if not loop.last else "" }}{% endfor %})
+
+// declaration
+PPDS_FUNCTION_{{name}};
 */
 
 /* PPDS_UNDEF:
