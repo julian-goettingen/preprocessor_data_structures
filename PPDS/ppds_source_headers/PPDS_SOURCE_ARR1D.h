@@ -42,6 +42,15 @@ kwargs:
 
 {{util.define_assert_fail(name, "ARR1D", numpy_wraparound, declare_site, panic)}}
 
+#define {{name}}_expansion_for_call {{pointer}}, {{len}}
+{% if pointer.type is defined and len.type is defined %}
+#define {{name}}_expansion_for_func_def {{pointer.type}} {{pointer}}, {{len.type}} {{len}}
+{% else %}
+#define {{name}}_expansion_for_func_def "to use ARR1D {{name}} (from {{declare_site}}) in definitions, annotate the type of the length and underlying datastructure. Example: PPDS_DECLARE_ARR1D(X, p : type(int *), n : type(int))"
+{% endif %}
+
+#define {{name}}_len {{len}}
+
 */
 
 /* PPDS_UNDEF:
@@ -49,43 +58,11 @@ kwargs:
 #undef {{name}}_assert_fail
 #undef {{name}}_assert_in_bounds
 #undef {{name}}
+#undef {{name}}_len
 */
 
 
 // this is declared so weirdly because "..." in the c-preprocessor means "1 or more arguments"
-#define PPDS_DECLARE_ARR1D(name, pointer, /*len,*/ ...) ((void)0);
+#define PPDS_DECLARE_ARR1D(name, pointer, /*len,*/ ...)
 
-/*
-#if {{numpy_wraparound}}
-#define {{name}}_WRAP(i) (i < 0 ? ({{len}} + i) : i)
-#else
-#define {{name}}_WRAP(i) i
-#endif
 
-#if {{skip_checks}}
-#define {{name}}_assert_in_bounds(i, expr_name) ((void)0)
-#else
-
-#   if {{numpy_wraparound}}
-
-#define {{name}}_assert_in_bounds(i, expr_name) ((((i) >= {{len}}) || ((i) < -({{len}}))) ? (void){{name}}_assert_fail(i, expr_name) : ((void)0))
-
-#   else //numpy_wraparound
-
-#define {{name}}_assert_in_bounds(i, expr_name) ((((i) >= {{len}}) || ((i) < 0) )? (void){{name}}_assert_fail(i, expr_name) : ((void)0))
-
-#   endif //numpywraparound
-
-#endif //skip_checks
-
-#define {{name}}_assert_fail(i, expr_name) \
-	fprintf(stderr,"\n\n----> ppds ASSERTION FAILURE: index of 1D-Array is OUT OF BOUNDS <----\n"),\
-  fprintf(stderr,"index " expr_name " is out of bounds for ARR1D of size "), PRINT({{len}}),\
-  fprintf(stderr, "numpywraparound is {{numpy_wraparound}}.\n"),\
-	fprintf(stderr,"\ndetected in line %d, function %s, file %s\n",__LINE__,__func__,__FILE__),\
-	fprintf(stderr, "with the object {{name}} declared in {{declare_site}} of type ARR1D\n"),\
-	fprintf(stderr, "object {{name}} defined by: pointer={{pointer}}, len={{len}} numpy_wraparound={{numpy_wraparound}}\n"),\
-	fprintf(stderr, "values of {{name}}:\n"), PRINT({{pointer}}), {{print_idx}}({{len}}),\
-  PRINT_ARR({{pointer}}, {{len}}),\
-  fprintf(stderr, " calling panic action: {{panic}}\n"),\
-  (void){{panic}} */

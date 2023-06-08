@@ -1,3 +1,5 @@
+#ifndef PRINT_ANYTHING_H
+#define PRINT_ANYTHING_H
 
 /* forcing overwrites auto*/
 #if FORCE_C11_PRINT==1
@@ -27,4 +29,6 @@
 #include "empty_print_definitions.h"
 #else
 #error "print_anything.h needs an implementation, choose one by defining one of the symbols before including it."
+#endif
+
 #endif

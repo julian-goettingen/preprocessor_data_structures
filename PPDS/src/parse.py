@@ -187,10 +187,11 @@ def flatten_specials(argdict: Dict[str, Union[str, List[str]]]) -> Dict[str, Fla
     return res
 
 
-TYPE_REX = re.compile(r"type\(([a-zA-Z0-9 *]+)\)")
+TYPE_REX = re.compile(r"type\(([a-zA-Z0-9_ *]+)\)")
 ELEMENTTYPE_REX = re.compile(r"elementtype\((\w+)\)")
 ISSAFE_REX = re.compile(r"issafe\((true|false)\)")
 SPECIAL_REX = re.compile(r"special")
+PTYPE_REX = re.compile(r"ptype\((\w+)\)")
 
 
 def annotation_to_kv(a: str) -> Tuple[str, str]:
@@ -204,6 +205,8 @@ def annotation_to_kv(a: str) -> Tuple[str, str]:
         return "issafe", boolval
     elif m := SPECIAL_REX.match(a):
         return "special", True
+    elif m := PTYPE_REX.match(a):
+        return "ptype", m.group(1)
 
     raise PPDSParseError(f"Unknown or misused annotation {a}")
 
