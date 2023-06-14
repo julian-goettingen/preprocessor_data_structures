@@ -92,6 +92,7 @@ def handle_file(src, defs_for_header_file: TextIO, _get_config=get_config):
             )  # todo: declare_site
             instances[inst.name.get_value()] = inst
 
+
             print('added instance: ', inst)
             headers.new_instance(inst)
             defs_for_header_file.write(inst.render_defs_for_header())
