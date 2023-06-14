@@ -6,6 +6,8 @@
 #include "PPDS_SOURCE_FUNCTION_NEW.h"
 #include "PPDS_SOURCE_ARR1D.h"
 
+#include "main_PPDS_GENERATED_DEFS_FOR_HEADER.h"
+
 #include "PPDS_DEF_1.h"
 
 
