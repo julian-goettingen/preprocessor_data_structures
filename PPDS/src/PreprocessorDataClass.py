@@ -92,6 +92,9 @@ class PreprocessorDataClassInstance:
     def render_undef(self) -> str:
         return self.klass.render_undef(self.argdict, self.declare_site)
 
+    def render_defs_for_header(self) -> str:
+        return self.klass.render_defs_for_header(self.argdict, self.declare_site)
+
 
 class PreprocessorDataClass:
     """
@@ -106,10 +109,14 @@ class PreprocessorDataClass:
 
         # this whole thing handles files as strings because it's easier
         self.name: str = name
+        # todo: refactor this duplication (esp when adding new ones)
         self.def_template = template_factory.get_def_template_from_source_string(
             source_string
         )
         self.undef_template = template_factory.get_undef_template_from_source_string(
+            source_string
+        )
+        self.defs_for_header_template = template_factory.get_defs_for_header_template_from_source_string(
             source_string
         )
         self.posargs, self.kwargs = template_factory.get_args_from_source_string(
@@ -167,3 +174,11 @@ class PreprocessorDataClass:
             self.undef_template, argdict, declare_site=declare_site
         )
         return res
+
+    def render_defs_for_header(self, argdict, declare_site):
+        if self.defs_for_header_template is not None:
+            res = util.header_from_template(
+                self.defs_for_header_template, argdict, declare_site=declare_site
+            )
+            return res
+        return ""

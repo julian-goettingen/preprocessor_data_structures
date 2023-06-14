@@ -296,7 +296,12 @@ for filename in files:
         # preserves line numbers
         code = util.remove_comments(f.read())
     try:
-        handle_file(code)
+        # todo: generalize this general target for more stuff like python-outputs
+        defs_for_header_filename = os.path.join(get_config().target_header_loc, filename.split('/')[-1].split('.')[0]+"_PPDS_GENERATED_DEFS_FOR_HEADER.h")
+        with open(defs_for_header_filename, "w") as f:
+            f.write("\n// todo: include guards, notice etc\n")
+            handle_file(code, f)
+            f.write("\n// todo: include guards, notice etc\n")
 
     except PPDSParseError as e:
         print(
