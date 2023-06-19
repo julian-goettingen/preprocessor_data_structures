@@ -290,7 +290,6 @@ for s in conf.search_paths:
 
 print("ppds preparing files: ", files)
 
-
 for filename in files:
     with open(filename, 'r') as f:
         # preserves line numbers
