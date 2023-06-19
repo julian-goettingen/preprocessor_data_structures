@@ -31,7 +31,7 @@ kwargs:
 {%- if arg.type is defined -%}
 {{arg}}
 {%- elif arg.ptype is defined -%}
-{{arg}} ## _expansion_for_call
+{{arg}} ## _expand_for_call (arg)
 {%- endif -%}
 {{", " if not loop.last else "" }}
 {%- endfor -%})

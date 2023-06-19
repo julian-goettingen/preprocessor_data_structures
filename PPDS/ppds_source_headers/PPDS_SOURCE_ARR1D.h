@@ -44,6 +44,7 @@ kwargs:
 
 
 #define {{name}}_len {{len}}
+#define {{name}}_pointer {{pointer}}
 
 */
 
@@ -53,11 +54,12 @@ kwargs:
 #undef {{name}}_assert_in_bounds
 #undef {{name}}
 #undef {{name}}_len
+#undef {{name}}_pointer
 */
 
 
 /* PPDS_DEFS_FOR_HEADER:
-#define {{name}}_expansion_for_call {{pointer}}, {{len}}
+#define {{name}}_expand_for_call(X) X_pointer, X_len
 {% if pointer.type is defined and len.type is defined %}
 #define {{name}}_expansion_for_func_def {{pointer.type}} {{pointer}}, {{len.type}} {{len}}
 {% else %}
