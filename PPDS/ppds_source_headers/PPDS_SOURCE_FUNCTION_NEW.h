@@ -45,7 +45,6 @@ kwargs:
 {%- endif -%}
 {{ ", " if not loop.last else "" }}
 {%- endfor -%}
-
 )
 
 

@@ -1,4 +1,5 @@
-
+#ifndef PPDS_SOURCE_ARR1D_H
+#define PPDS_SOURCE_ARR1D_H
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -57,7 +58,6 @@ kwargs:
 #undef {{name}}_pointer
 */
 
-
 /* PPDS_DEFS_FOR_HEADER:
 #define {{name}}_expand_for_call(X) X_pointer, X_len
 {% if pointer.type is defined and len.type is defined %}
@@ -73,3 +73,4 @@ kwargs:
 #define PPDS_DECLARE_ARR1D(name, pointer, /*len,*/ ...)
 
 
+#endif // PPDS_SOURCE_ARR1D_H
