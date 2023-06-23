@@ -1,0 +1,7 @@
+#ifndef PPDS_FUNCTIONS_H
+#define PPDS_FUNCTIONS_H
+
+#include "functions_PPDS_GENERATED_DEFS_FOR_HEADER.h"
+
+
+#endif //PPDS_FUNCTIONS_H

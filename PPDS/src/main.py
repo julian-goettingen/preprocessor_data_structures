@@ -287,6 +287,9 @@ for s in conf.search_paths:
     matches = glob(s, recursive=True)
     print("matches: ", matches)
     files = files.union(set(glob(s)))
+    if len(files) == 0:
+        print("ERROR: no files found to prepare, glob-pattern was "+s)
+        exit(1)
 
 print("ppds preparing files: ", files)
 

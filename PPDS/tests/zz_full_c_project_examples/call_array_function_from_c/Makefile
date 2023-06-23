@@ -1,3 +1,5 @@
+
+
 all:
 	make prepare
 	make compile
@@ -11,9 +13,8 @@ prepare:
 	python3 ./../../../src/main.py
 
 compile:
-	${CC} c_src/functions.c -shared -fPIC -o lib.so -Ippds_target_headers -I../../../ppds_source_headers
+	${CC} main.c -Ippds_target_headers -I../../../ppds_source_headers
 
-#output is an .so - cant run it.
-#run:
-#	./a.out
+run:
+	./a.out
 

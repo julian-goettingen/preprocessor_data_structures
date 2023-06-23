@@ -14,13 +14,11 @@ from requests import JSONDecodeError
 class PPDSConfig:
     source_header_loc: str
     target_header_loc: str
-    interface_desc_loc: str
+    interface_desc_loc: str | None
     pygen_target_loc: str | None
     pygen_usables_loc: str | None
     search_paths: List[str]
     global_default_params: Dict[str, str]
-
-
 
 
 def _ensure_valid_dir(config, name, allow_none=False):
@@ -33,7 +31,9 @@ def _ensure_valid_dir(config, name, allow_none=False):
         return
 
     if not os.path.isdir(path):
-        print(f"config-file specifies a path for {name} that could not be found: {repr(path)}")
+        print(
+            f"config-file specifies a path for {name} that could not be found: {repr(path)}"
+        )
         print(f"if the path is right, you need to create the directory.")
         exit(1)
 
@@ -52,7 +52,11 @@ xpected_keys = {
 def _read() -> PPDSConfig:
 
     # defaults
-    config: Dict[str, Union[str, None]] = {"pygen_target_loc": None, "pygen_usables_loc": None}
+    config: Dict[str, Union[str, None]] = {
+        "pygen_target_loc": None,
+        "pygen_usables_loc": None,
+        "interface_desc_loc": None,
+    }
 
     try:
         with open("./ppds_config.json", "r") as f:
@@ -84,7 +88,7 @@ def _read() -> PPDSConfig:
 
     _ensure_valid_dir(config, "source_header_loc")
     _ensure_valid_dir(config, "target_header_loc")
-    _ensure_valid_dir(config, "interface_desc_loc")
+    _ensure_valid_dir(config, "interface_desc_loc", allow_none=True)
     _ensure_valid_dir(config, "pygen_target_loc", allow_none=True)
     _ensure_valid_dir(config, "pygen_usables_loc", allow_none=True)
 
@@ -99,7 +103,7 @@ def _read() -> PPDSConfig:
             "global_default_param must be dict of (name, value), but found: ",
             repr(config["global_default_params"]),
             "of type",
-            type(config["global_default_params"])
+            type(config["global_default_params"]),
         )
         exit(1)
 
@@ -113,10 +117,12 @@ def _read() -> PPDSConfig:
         res = PPDSConfig(**config)
         return res
     except ValidationError as e:
-        print(f"""
+        print(
+            f"""
         Config-file has validation-errors, see below:
         {e}
-        """)
+        """
+        )
     except:
         print("failed to understand config-file. Reason: ", e)
         exit(1)

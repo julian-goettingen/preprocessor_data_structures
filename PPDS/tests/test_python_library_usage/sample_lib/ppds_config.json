@@ -1,0 +1,8 @@
+{
+  "source_header_loc": "../../../ppds_source_headers",
+  "target_header_loc": "./ppds_target_headers",
+  "pygen_target_loc": "../sample_lib_py",
+  "pygen_usables_loc": "../../../ppds_pygen_usables",
+  "search_paths": ["./c_src/*.c"],
+  "global_default_params": {}
+}
