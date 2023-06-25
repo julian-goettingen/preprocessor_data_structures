@@ -1,12 +1,12 @@
 import sys
 import re
 import traceback
+import pathlib
 
 import util
 import shutil
 import os.path
 from glob import glob
-from pathlib import Path
 
 import typeguard
 typeguard.config.collection_check_strategy = typeguard.CollectionCheckStrategy.ALL_ITEMS
@@ -275,9 +275,15 @@ ppds_target_header_dir = conf.target_header_loc
 
 
 if conf.pygen_target_loc is not None:
+    pygen_target = pathlib.Path(conf.pygen_target_loc)
+    usables_dest = os.path.join(pygen_target, "pygen_usables")
+    os.makedirs(usables_dest, exist_ok=True)
     shutil.copytree(
-        src=conf.pygen_usables_loc, dst=conf.pygen_target_loc, dirs_exist_ok=True
+        src=conf.pygen_usables_loc, dst=usables_dest, dirs_exist_ok=True
     )
+    target_loc_init = os.path.join(pygen_target, "__init__.py")
+    with open(target_loc_init, "w") as f:
+        f.write("# \n")
 
 files = set()
 for s in conf.search_paths:
