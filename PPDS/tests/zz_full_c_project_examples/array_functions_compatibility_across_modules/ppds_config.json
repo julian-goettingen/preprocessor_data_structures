@@ -1,0 +1,8 @@
+
+{
+    "source_header_loc": "../../../ppds_source_headers",
+    "target_header_loc": "./ppds_target_headers",
+    "interface_desc_loc": "./ppds_interface_desc",
+    "search_paths": ["*.h", "*.c"],
+    "global_default_params": {}
+}

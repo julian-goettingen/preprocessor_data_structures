@@ -138,7 +138,7 @@ class FlatVar:
             return FlatVar(value, anno_dict)
         else:
             raise PPDSParseError(
-                f"Illegal pattern of colons (':') in argument,"
+                f"Illegal pattern of colons (':') in an argument of {s},"
                 f"an argument should be of the form"
                 f'"val" or "val : extra_info(stuff)" or "val : extra_info(stuff), more_info(more_stuff)"'
                 f"the c++-namespace-syntax ('::') is supported"

@@ -1,7 +1,9 @@
 import os
 from abc import ABC
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, TextIO
 import re
+
+
 from PPDS.src.sinks import HeaderStack
 
 from src.PreprocessorDataClass import (
@@ -57,7 +59,7 @@ class PPDSKnownClasses:
         ...
 
 
-def handle_file(src, _get_config=get_config):
+def handle_file(src, defs_for_header_file: TextIO, _get_config=get_config):
 
     conf = _get_config()
 
@@ -90,8 +92,10 @@ def handle_file(src, _get_config=get_config):
             )  # todo: declare_site
             instances[inst.name.get_value()] = inst
 
+
             print('added instance: ', inst)
             headers.new_instance(inst)
+            defs_for_header_file.write(inst.render_defs_for_header())
 
             continue
         target_def_filename = m.group("target_def_filename")

@@ -22,9 +22,7 @@ kwargs:
 ]
  */
 
-
-
-/* PPDS_DEF:
+/* PPDS_DEFS_FOR_HEADER:
 
 // a 'function call' is actually this macro expansion
 #define {{name}}({%- for arg in var_args -%}
@@ -33,7 +31,7 @@ kwargs:
 {%- if arg.type is defined -%}
 {{arg}}
 {%- elif arg.ptype is defined -%}
-{{arg}} ## _expansion_for_call
+{{arg}} ## _expand_for_call (arg)
 {%- endif -%}
 {{", " if not loop.last else "" }}
 {%- endfor -%})
@@ -52,6 +50,11 @@ kwargs:
 
 // declaration
 PPDS_FUNCTION_{{name}};
+
+*/
+
+
+/* PPDS_DEF:
 */
 
 /* PPDS_UNDEF:

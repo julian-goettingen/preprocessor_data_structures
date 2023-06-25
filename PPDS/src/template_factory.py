@@ -25,6 +25,7 @@ def get_env(local_get_config=config.get_config):
     return _env
 
 
+DEFS_FOR_HEADER_REX = re.compile("/\*\s+PPDS_DEFS_FOR_HEADER:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
 DEF_GETTER_REX = re.compile("/\*\s+PPDS_DEF:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
 UNDEF_GETTER_REX = re.compile("/\*\s+PPDS_UNDEF:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
 ARGS_GETTER_REX = re.compile("/\*\s+PPDS_ARGS:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
@@ -150,6 +151,21 @@ def get_undef_template_from_source_string(source_string):
 
 # TODO: better error handling
 # idea: make line numbers in source-file match linenumbers in source_string
+def get_defs_for_header_template_from_source_string(source_string):
+    template = re.search(DEFS_FOR_HEADER_REX, source_string)
+    if not template:
+        # TODO: report close match?
+        return None # this one is optional.
+    try:
+        return get_env().from_string(template.group(1))
+    except jinja2.exceptions.UndefinedError as e:
+        print(e)
+        print(e.__dict__)
+        raise PPDSParseError("header-file contains undefined:")
+
+
+# TODO: better error handling
+# idea: make line numbers in source-file match linenumbers in source_string
 def get_def_template_from_source_string(source_string):
     template = re.search(DEF_GETTER_REX, source_string)
     if not template:
@@ -161,3 +177,4 @@ def get_def_template_from_source_string(source_string):
         print(e)
         print(e.__dict__)
         raise PPDSParseError("header-file contains undefined:")
+
