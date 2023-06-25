@@ -8,10 +8,10 @@ def hello_int(num):
     return _lib.hello_int_def(num)
 
 def arr_sum(arr : np.ndarray):
-    assert len(arr.shape) == 1
-    assert arr.dtype == np.float64
-    # must assert the array is contiguous
-    return _lib.arr_sum_def(arr.ctypes.data_as(ctypes.c_void_p), arr.shape[0])
+    arr_ptr = np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS")
+    print(arr_ptr)
+    _lib.arr_sum_def.argtypes = [arr_ptr, ctypes.c_int]
+    return _lib.arr_sum_def(arr, arr.shape[0])
 
 
 

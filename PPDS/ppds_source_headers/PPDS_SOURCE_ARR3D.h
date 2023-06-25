@@ -73,6 +73,14 @@ kwargs:
 
 */
 
+/* PPDS_DEFS_FOR_HEADER:
+#define {{name}}_expand_for_call(X) X_pointer, X_nx, X_ny, X_nz
+{% if pointer.type is defined and nx.type is defined and ny.type is defined and nz.type is defined %}
+#define {{name}}_expansion_for_func_def {{pointer.type}} {{pointer}}, {{nx.type}} {{nx}}, {{ny.type}} {{ny}}, {{nz.type}} {{nz}}
+{% else %}
+#define {{name}}_expansion_for_func_def "to use ARR2D {{name}} (from {{declare_site}}) in definitions, annotate the type of nx, ny and underlying datastructure. Example: PPDS_DECLARE_ARR2D(X, p : type(int *), n1 : type(int), n2 : type(int) )"
+{% endif %}
+*/
 
 // this is declared so weirdly because ... in the c-preprocessor means "1 or more arguments"
 #define PPDS_DECLARE_ARR3D(name, pointer, nx, ny, /*nz,*/ ...) ((void)0);
