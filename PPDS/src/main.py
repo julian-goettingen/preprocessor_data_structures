@@ -322,7 +322,14 @@ ERROR related to file {filename} :
             """
         )
         exit(1)
-
+    except Exception as e:
+        print(f"""
+    An unknown problem occured during parsing of your source-file. See stacktrace below.            
+    This could be due to a error in your code or in PPDS.
+    Even if your code is wrong, PPDS should be able to give you a hint on what is wrong with it, so please file a bug report.
+    Problematic code is in file {filename}
+    """)
+        raise
 
 # the approach is to get the PPDS_SOURCE-files used by each file,
 # turn that source-file into the PPDSDataClass,

@@ -4,6 +4,7 @@
 
 #include "module.h"
 #include "PPDS_SOURCE_ARR1D.h"
+#include "PPDS_SOURCE_ARR2D.h"
 #include "PPDS_SOURCE_FUNCTION_NEW.h"
 
 #include "PPDS_DEF_module.h"

@@ -36,7 +36,10 @@ kwargs:
 
 {% import 'macros.jinja2' as util -%}
 
-#define {{name}}(i, j) {{pointer}}[{{name}}_assert_in_bounds(i,j,#i,#j), {{name}}_WRAP_Dim0(i)*{{ny}} + {{name}}_WRAP_Dim1(j)]
+#define {{name}}(i, j) {{pointer}}[{{name}}_assert_in_bounds((i),(j),#i,#j), {{name}}_WRAP_Dim0((i))*{{ny}} + {{name}}_WRAP_Dim1((j))]
+
+#define {{name}}_nx {{nx}}
+#define {{name}}_ny {{ny}}
 
 // internal:
 
@@ -63,6 +66,8 @@ kwargs:
 #undef {{name}}_assert_fail_with_index
 #undef {{name}}_assert_in_bounds
 #undef {{name}}
+#undef {{name}}_nx
+#undef {{name}}_ny
 */
 
 /* PPDS_DEFS_FOR_HEADER:
