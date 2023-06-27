@@ -1,4 +1,3 @@
-import src.parse
 from src.parse import (
     parse_args_string,
     split_smart,
@@ -8,7 +7,7 @@ from src.parse import (
     FlatVar
 )
 
-from PPDS.src.parse import flatten_specials
+from src.parse import flatten_specials
 
 
 def test_flat_append_in_place():

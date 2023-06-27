@@ -1,7 +1,7 @@
 from src.template_factory import parse_yaml_args
 from src.parse import make_arg_dict
 
-from PPDS.src.parse import raw_arglist_to_initialized_argdict
+from src.parse import raw_arglist_to_initialized_argdict
 
 
 def test_parse_yaml_args_standard():

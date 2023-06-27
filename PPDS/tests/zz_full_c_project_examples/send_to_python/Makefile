@@ -10,7 +10,7 @@ clean:
 	rm -f ./a.out
 
 prepare:
-	python3 ./../../../src/main.py
+	python3 ./../../../script.py
 
 compile:
 	${CC} *.c -Wall -Wextra -Ippds_target_headers -I../../../ppds_source_headers

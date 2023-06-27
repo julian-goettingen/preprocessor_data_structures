@@ -1,20 +1,21 @@
 from typing import Any, Tuple, List, Dict
-from typeguard import check_type, TypeCheckError
-
 import jinja2
 import re
-from parse_err import PPDSParseError
-import config
-
 import yaml
 from yaml import YAMLError, MarkedYAMLError
+from typeguard import check_type, TypeCheckError
 
-import jinja_callable
+from src import jinja_callable
+from src.parse_err import PPDSParseError
+import src.config
+
+
+import src.jinja_callable
 
 _env = None
 
 
-def get_env(local_get_config=config.get_config):
+def get_env(local_get_config=src.config.get_config):
     global _env
     if _env is None:
         _env = jinja2.Environment(
@@ -25,15 +26,15 @@ def get_env(local_get_config=config.get_config):
     return _env
 
 
-DEFS_FOR_HEADER_REX = re.compile("/\*\s+PPDS_DEFS_FOR_HEADER:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
-DEF_GETTER_REX = re.compile("/\*\s+PPDS_DEF:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
-UNDEF_GETTER_REX = re.compile("/\*\s+PPDS_UNDEF:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
-ARGS_GETTER_REX = re.compile("/\*\s+PPDS_ARGS:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
+DEFS_FOR_HEADER_REX = re.compile(r"/\*\s+PPDS_DEFS_FOR_HEADER:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
+DEF_GETTER_REX = re.compile(r"/\*\s+PPDS_DEF:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
+UNDEF_GETTER_REX = re.compile(r"/\*\s+PPDS_UNDEF:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
+ARGS_GETTER_REX = re.compile(r"/\*\s+PPDS_ARGS:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
 CONSTRUCTOR_GETTER_REX = re.compile(
-    "/\*\s+PPDS_CONSTRUCTORS:\s+(.*?)\*/", re.MULTILINE | re.DOTALL
+    r"/\*\s+PPDS_CONSTRUCTORS:\s+(.*?)\*/", re.MULTILINE | re.DOTALL
 )
 template_getter_rex = re.compile(
-    "/\*\s+PPDS_SOURCE\s+(.*?)\*/", re.MULTILINE | re.DOTALL
+    r"/\*\s+PPDS_SOURCE\s+(.*?)\*/", re.MULTILINE | re.DOTALL
 )
 
 

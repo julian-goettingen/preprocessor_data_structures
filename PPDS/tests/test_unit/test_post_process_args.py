@@ -1,4 +1,4 @@
-from PPDS.src.post_process_args import post_process_args_in_place
+from src.post_process_args import post_process_args_in_place
 
 def simple_args():
     return {'func_name': 'hello_world', 'definition': 'char *hello_world()'}

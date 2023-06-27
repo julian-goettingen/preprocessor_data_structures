@@ -1,7 +1,6 @@
 # this allows tests to import the source-directories
 import sys
 import os
-print("IN CONFTEST")
 PROJECT_ROOT = os.path.join(os.path.dirname(__file__), "../..")
 
 sys.path.extend([

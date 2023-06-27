@@ -1,4 +1,4 @@
-from PPDS.src.c_functions import read_func_decl
+from src.c_functions import read_func_decl
 
 
 def post_process_args_in_place(argdict, ppds_class_name):

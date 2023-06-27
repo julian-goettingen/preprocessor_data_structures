@@ -1,4 +1,4 @@
-import c_functions as cf
+import src.c_functions as cf
 
 def test_trivial():
     f = cf.read_func_decl("int foo()")

@@ -1,40 +1,17 @@
-import sys
 import re
-import traceback
 import pathlib
-
-import util
 import shutil
 import os.path
 from glob import glob
 
-import typeguard
-typeguard.config.collection_check_strategy = typeguard.CollectionCheckStrategy.ALL_ITEMS
-typeguard.install_import_hook(['parse', 'handle_file', 'PreprocessorDataClass', 'template_factory', 'config'])
-
-
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-# print(__file__)
-sys.path.extend([
-    os.path.join(PROJECT_ROOT),
-    os.path.join(PROJECT_ROOT, "PPDS"),
-    os.path.join(PROJECT_ROOT, "PPDS", "src")
-])
-print(sys.path)
-
-from PPDS.src.handle_file import handle_file
-from PPDS.src.post_process_args import post_process_args_in_place
-from PPDS.src.PreprocessorDataClass import PreprocessorDataClass
-from parse import PPDSParseError, parse_args_string
-import template_factory
-
-from config import get_config
+from src.handle_file import handle_file
+from src.parse_err import PPDSParseError
+from src.config import get_config
+import src.util
 
 conf = get_config()
 
 
-# TODO: must allow this to be in another directory -> not needed, bc the dir must
-# be on the include header path anyways
 SOURCE_REX = r'\s+\#include\s+\"PPDS_SOURCE_(\w+?)\.h\"'
 
 # TODO: I noticed too late that file-objects save their filename.
@@ -167,169 +144,171 @@ class PPDSTargetFileStack:
 def_rex = re.compile(r'\#include\s+"PPDS_DEF_(\w+)\.h"')
 undef_rex = re.compile(r'\#include\s+"PPDS_UNDEF_(\w+)\.h"')
 
-# instead of being handed a single ppds_data_class,
-# it should be passed a list of regex that are considered to be constructors
-# then, scan the file and whenever a constructor is seen, the corresponding action is taken.
-def handle_code(ppds_data_class, cleaned_c_source, filename):
+# # instead of being handed a single ppds_data_class,
+# # it should be passed a list of regex that are considered to be constructors
+# # then, scan the file and whenever a constructor is seen, the corresponding action is taken.
+# def handle_code(ppds_data_class, cleaned_c_source, filename):
+#
+#     defstack = PPDSTargetFileStack()
+#     undefstack = PPDSTargetFileStack()
+#
+#     # the important lines are: include def, include undef and declare
+#     for line_no, line in enumerate(cleaned_c_source.splitlines()):
+#
+#         try:
+#             assert len(defstack) == len(undefstack)
+#
+#             # is it a definition-target-header?
+#             m = re.match(def_rex, line)
+#             if m:
+#                 defstack.push(PPDSDefTargetHeaderFile(f"PPDS_DEF_{m.group(1)}.h"))
+#                 undefstack.push(
+#                     PPDSDefTargetHeaderFile(f"PPDS_UNDEF_{m.group(1)}.h")
+#                 )
+#                 print("new def header")
+#                 print(defstack)
+#                 continue
+#
+#             m = re.match(undef_rex, line)
+#             if m:
+#                 # print("found undef header")
+#                 # print(defstack)
+#                 # print(undefstack)
+#                 def_file = defstack.pop()
+#                 undef_file = undefstack.pop()
+#                 md = re.match(r"PPDS_DEF_(\w+)\.h", def_file.filename)
+#                 mu = re.match(r"PPDS_UNDEF_(\w+)\.h", undef_file.filename)
+#                 assert md
+#                 assert mu
+#                 assert mu.group(1) == md.group(1)
+#                 if mu.group(1) != m.group(1):
+#                     raise PPDSParseError("closing wrong scope")
+#
+#                 print("new undef header")
+#                 print(defstack)
+#                 continue
+#
+#
+#
+#             # hier vielleicht das Zeug in die python-files einfuegen?
+#             # also die python-snippets? Nein, eigentlich haben nur Funktionen ein snippet
+#             # (nein, jede PPDSDataClass hat eigene python-snippets, die aber ohne die Funktion keinen Sinn ergeben haben ein)
+#             # was ist mit den anderen c-snippets?
+#             #
+#             # die ppds_data_class hat alle infos, um alle snippets zu generieren.
+#             # hier in der main sollte dann immer das richtige angefordert werden und in das richtige file geschrieben werden
+#
+#             # die bekannten patterns sollten aus den ppds-source-files kommen und die Konstruktoren darstellen
+#             # alle bekannten patterns zusammen sollten
+#
+#             for constr_rex in ppds_data_class.constructor_list:
+#                 m = re.match(constr_rex, line)
+#                 if m:
+#                     print("found match: ", m)
+#                     raw_args = m.group(1)
+#                     argdict = ppds_data_class.parse_args(raw_args)
+#                     post_process_args_in_place(argdict, ppds_data_class.name)
+#                     declare_site = f"file: {filename}, line {line_no}"
+#
+#                     extradef = ppds_data_class.render_def(argdict, declare_site)
+#                     extraundef = ppds_data_class.render_undef(argdict, declare_site)
+#
+#                     defstack.write_to_top(extradef)
+#                     undefstack.write_to_top(extraundef)
+#
+#         except PPDSParseError as e:
+#             print(
+#                 f"""
+# ERROR parsing PPDS-annotations in file {filename} line {line_no}:
+# {line.strip()}
+# {e.reason}
+#
+# {e.detail}
+#             """
+#             )
+#             exit(1)
+#         except Exception:
+#             print(f"""
+# An unknown problem occured during parsing of your source-file. See stacktrace below.
+# This could be due to a error in your code or in PPDS.
+# Even if your code is wrong, PPDS should be able to give you a hint on what is wrong with it, so please file a bug report.
+# Problematic code is in file {filename}  line {line_no}:
+# {line}
+# """)
+#             print(traceback.print_exc())
+#             exit(1)
+#
+#     assert len(defstack) == len(undefstack)
+#     if len(defstack) > 0:
+#         # this should not be a valueerror but a proper message
+#         raise ValueError(f"unclosed definition-headers: {defstack}")
 
-    defstack = PPDSTargetFileStack()
-    undefstack = PPDSTargetFileStack()
+def main():
 
-    # the important lines are: include def, include undef and declare
-    for line_no, line in enumerate(cleaned_c_source.splitlines()):
+    # conf-file over cmdline for most things
+    ppds_source_header_dir = conf.source_header_loc
+    ppds_target_header_dir = conf.target_header_loc
+    # conf.pygen_target_loc
+    # ppds_source_header_loc = conf.pygen_usables_loc
 
+
+    if conf.pygen_target_loc is not None:
+        pygen_target = pathlib.Path(conf.pygen_target_loc)
+        usables_dest = os.path.join(pygen_target, "pygen_usables")
+        os.makedirs(usables_dest, exist_ok=True)
+        shutil.copytree(
+            src=conf.pygen_usables_loc, dst=usables_dest, dirs_exist_ok=True
+        )
+        target_loc_init = os.path.join(pygen_target, "__init__.py")
+        with open(target_loc_init, "w") as f:
+            f.write("# \n")
+
+    files = set()
+    for s in conf.search_paths:
+        if not isinstance(s, str):
+            print("search paths must be strings, but in config file found: {s}")
+            exit(1)
+        matches = glob(s, recursive=True)
+        print("matches: ", matches)
+        files = files.union(set(glob(s)))
+        if len(files) == 0:
+            print("ERROR: no files found to prepare, glob-pattern was "+s)
+            exit(1)
+
+    print("ppds preparing files: ", files)
+
+    for filename in files:
+        with open(filename, 'r') as f:
+            # preserves line numbers
+            code = src.util.remove_comments(f.read())
         try:
-            assert len(defstack) == len(undefstack)
-
-            # is it a definition-target-header?
-            m = re.match(def_rex, line)
-            if m:
-                defstack.push(PPDSDefTargetHeaderFile(f"PPDS_DEF_{m.group(1)}.h"))
-                undefstack.push(
-                    PPDSDefTargetHeaderFile(f"PPDS_UNDEF_{m.group(1)}.h")
-                )
-                print("new def header")
-                print(defstack)
-                continue
-
-            m = re.match(undef_rex, line)
-            if m:
-                # print("found undef header")
-                # print(defstack)
-                # print(undefstack)
-                def_file = defstack.pop()
-                undef_file = undefstack.pop()
-                md = re.match(r"PPDS_DEF_(\w+)\.h", def_file.filename)
-                mu = re.match(r"PPDS_UNDEF_(\w+)\.h", undef_file.filename)
-                assert md
-                assert mu
-                assert mu.group(1) == md.group(1)
-                if mu.group(1) != m.group(1):
-                    raise PPDSParseError("closing wrong scope")
-
-                print("new undef header")
-                print(defstack)
-                continue
-
-
-
-            # todo: hier vielleicht das Zeug in die python-files einfuegen?
-            # also die python-snippets? Nein, eigentlich haben nur Funktionen ein snippet
-            # (nein, jede PPDSDataClass hat eigene python-snippets, die aber ohne die Funktion keinen Sinn ergeben haben ein)
-            # was ist mit den anderen c-snippets?
-            #
-            # die ppds_data_class hat alle infos, um alle snippets zu generieren.
-            # hier in der main sollte dann immer das richtige angefordert werden und in das richtige file geschrieben werden
-
-            # die bekannten patterns sollten aus den ppds-source-files kommen und die Konstruktoren darstellen
-            # alle bekannten patterns zusammen sollten
-
-            for constr_rex in ppds_data_class.constructor_list:
-                m = re.match(constr_rex, line)
-                if m:
-                    print("found match: ", m)
-                    raw_args = m.group(1)
-                    argdict = ppds_data_class.parse_args(raw_args)
-                    post_process_args_in_place(argdict, ppds_data_class.name)
-                    declare_site = f"file: {filename}, line {line_no}"
-
-                    extradef = ppds_data_class.render_def(argdict, declare_site)
-                    extraundef = ppds_data_class.render_undef(argdict, declare_site)
-
-                    defstack.write_to_top(extradef)
-                    undefstack.write_to_top(extraundef)
+            # todo: generalize this general target for more stuff like python-outputs
+            defs_for_header_filename = os.path.join(get_config().target_header_loc, filename.split('/')[-1].split('.')[0]+"_PPDS_GENERATED_DEFS_FOR_HEADER.h")
+            with open(defs_for_header_filename, "w") as f:
+                f.write("\n// todo: include guards, notice etc\n")
+                handle_file(code, f)
+                f.write("\n// todo: include guards, notice etc\n")
 
         except PPDSParseError as e:
             print(
                 f"""
-ERROR parsing PPDS-annotations in file {filename} line {line_no}:
-{line.strip()}
-{e.reason}
+    ERROR related to file {filename} :
 
-{e.detail}
-            """
+    {e.reason}
+
+    {e.detail}
+                """
             )
             exit(1)
-        except Exception:
+        except Exception as e:
             print(f"""
-An unknown problem occured during parsing of your source-file. See stacktrace below.            
-This could be due to a error in your code or in PPDS.
-Even if your code is wrong, PPDS should be able to give you a hint on what is wrong with it, so please file a bug report.
-Problematic code is in file {filename}  line {line_no}:
-{line}
-""")
-            print(traceback.print_exc())
-            exit(1)
+        An unknown problem occured during parsing of your source-file. See stacktrace below.            
+        This could be due to a error in your code or in PPDS.
+        Even if your code is wrong, PPDS should be able to give you a hint on what is wrong with it, so please file a bug report.
+        Problematic code is in file {filename}
+        """)
+            raise
 
-    assert len(defstack) == len(undefstack)
-    if len(defstack) > 0:
-        # this should not be a valueerror but a proper message
-        raise ValueError(f"unclosed definition-headers: {defstack}")
-
-
-# conf-file over cmdline for most things
-ppds_source_header_dir = conf.source_header_loc
-ppds_target_header_dir = conf.target_header_loc
-# conf.pygen_target_loc
-# ppds_source_header_loc = conf.pygen_usables_loc
-
-
-if conf.pygen_target_loc is not None:
-    pygen_target = pathlib.Path(conf.pygen_target_loc)
-    usables_dest = os.path.join(pygen_target, "pygen_usables")
-    os.makedirs(usables_dest, exist_ok=True)
-    shutil.copytree(
-        src=conf.pygen_usables_loc, dst=usables_dest, dirs_exist_ok=True
-    )
-    target_loc_init = os.path.join(pygen_target, "__init__.py")
-    with open(target_loc_init, "w") as f:
-        f.write("# \n")
-
-files = set()
-for s in conf.search_paths:
-    if not isinstance(s, str):
-        print("search paths must be strings, but in config file found: {s}")
-        exit(1)
-    matches = glob(s, recursive=True)
-    print("matches: ", matches)
-    files = files.union(set(glob(s)))
-    if len(files) == 0:
-        print("ERROR: no files found to prepare, glob-pattern was "+s)
-        exit(1)
-
-print("ppds preparing files: ", files)
-
-for filename in files:
-    with open(filename, 'r') as f:
-        # preserves line numbers
-        code = util.remove_comments(f.read())
-    try:
-        # todo: generalize this general target for more stuff like python-outputs
-        defs_for_header_filename = os.path.join(get_config().target_header_loc, filename.split('/')[-1].split('.')[0]+"_PPDS_GENERATED_DEFS_FOR_HEADER.h")
-        with open(defs_for_header_filename, "w") as f:
-            f.write("\n// todo: include guards, notice etc\n")
-            handle_file(code, f)
-            f.write("\n// todo: include guards, notice etc\n")
-
-    except PPDSParseError as e:
-        print(
-            f"""
-ERROR related to file {filename} :
-
-{e.reason}
-
-{e.detail}
-            """
-        )
-        exit(1)
-    except Exception as e:
-        print(f"""
-    An unknown problem occured during parsing of your source-file. See stacktrace below.            
-    This could be due to a error in your code or in PPDS.
-    Even if your code is wrong, PPDS should be able to give you a hint on what is wrong with it, so please file a bug report.
-    Problematic code is in file {filename}
-    """)
-        raise
 
 # the approach is to get the PPDS_SOURCE-files used by each file,
 # turn that source-file into the PPDSDataClass,

@@ -8,7 +8,7 @@ clean:
 	rm -f ./a.out
 
 prepare:
-	python3 ./../../../src/main.py
+	python3 ./../../../script.py
 
 compile:
 	clang c_src/functions.c -shared -fPIC -o lib.so -Ippds_target_headers -I../../../ppds_source_headers

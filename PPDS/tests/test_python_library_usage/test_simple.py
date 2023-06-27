@@ -1,4 +1,4 @@
-from PPDS.src.handle_file import handle_file
+from src.handle_file import handle_file
 
 #
 # es braucht eine kleine Bibliothek die dann reinkompiliert werden kann um das C-interface richtig zu testen

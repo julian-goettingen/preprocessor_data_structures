@@ -1,9 +1,7 @@
-from dataclasses import dataclass
 from typing import List
-
-from PreprocessorDataClass import PreprocessorDataClassInstance
 import os.path
-from config import get_config
+
+from src.PreprocessorDataClass import PreprocessorDataClassInstance
 from src.parse_err import PPDSParseError
 
 

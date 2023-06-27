@@ -4,7 +4,7 @@ from typing import Dict, Any, Tuple, TextIO
 import re
 
 
-from PPDS.src.sinks import HeaderStack
+from src.sinks import HeaderStack
 
 from src.PreprocessorDataClass import (
     PreprocessorDataClass,

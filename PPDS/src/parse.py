@@ -1,7 +1,9 @@
 import copy
 import re
-from parse_err import PPDSParseError
 from typing import Dict, Any, Tuple, List, Union
+
+
+from src.parse_err import PPDSParseError
 
 
 def make_arg_dict(posargs, default_kwargs, argstring):
@@ -150,7 +152,8 @@ class FlatVar:
         return self._value
 
     def __eq__(self, other):
-        # todo: must do instance-check actually, but imports are broken af
+        if not isinstance(other, FlatVar):
+            return False
         return self._value == other._value and self._get_anno_dict() == other._get_anno_dict()
 
     def _get_anno_dict(self):

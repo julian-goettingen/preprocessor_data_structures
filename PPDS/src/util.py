@@ -1,9 +1,7 @@
 import re
 import jinja2
-import json
 
-from parse_err import PPDSParseError
-from json import JSONDecodeError
+from src.parse_err import PPDSParseError
 
 # modified from:
 # https://stackoverflow.com/questions/241327/remove-c-and-c-comments-using-python

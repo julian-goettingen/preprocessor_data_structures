@@ -2,9 +2,9 @@ import pytest
 from typing import Dict
 
 import typeguard
-from PreprocessorDataClass import expand_argdict_in_place
+from src.PreprocessorDataClass import expand_argdict_in_place
 
-from parse_err import PPDSParseError
+from src.parse_err import PPDSParseError
 
 from src.PreprocessorDataClass import PreprocessorDataClassInstance
 
@@ -56,6 +56,12 @@ def test_expand_argdict_name_error():
 
     with pytest.raises(PPDSParseError, match=r"unknown object: b_obj") as e:
         expand_argdict_in_place(argdict, known_names)
+    print(type(e))
+    print(e.value.__class__)
+    print(PPDSParseError("duh").__class__)
+    print(type(PPDSParseError("duh")))
+    print(e)
+    assert e.errisinstance(PPDSParseError)
 
 def test_expand_argdict_with_varargs():
 

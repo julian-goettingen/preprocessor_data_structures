@@ -2,13 +2,11 @@ from __future__ import annotations
 
 import copy
 from typing import Dict, Any, List, Union
-from typeguard import check_type, typechecked
 
-from PPDS.src import template_factory, util
-from PPDS.src.config import get_config
-from PPDS.src.parse import parse_args_string, make_arg_dict
-from parse_err import PPDSParseError
-import re
+from src import template_factory, util
+from src.config import get_config
+from src.parse import parse_args_string, make_arg_dict
+from src.parse_err import PPDSParseError
 
 from src.parse import raw_arglist_to_argdict, raw_arglist_to_initialized_argdict, flatten_specials
 
