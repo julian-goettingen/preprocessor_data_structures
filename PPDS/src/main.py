@@ -1,4 +1,5 @@
 import re
+import textwrap
 import pathlib
 import shutil
 import os.path
@@ -8,6 +9,7 @@ from src.handle_file import handle_file
 from src.parse_err import PPDSParseError
 from src.config import get_config
 import src.util
+from src.sinks import PPDSTargetFile
 
 conf = get_config()
 
@@ -53,17 +55,35 @@ def main():
 
     print("ppds preparing files: ", files)
 
+    py_loc = get_config().pygen_target_loc
+    py_wrapper_filename = None if py_loc is None else os.path.join(py_loc, "py_wrapper.py")
+    py_wrapper_file = PPDSTargetFile("py_wrapper", py_wrapper_filename)
+    py_wrapper_file.append(textwrap.dedent(f"""
+import pygen_usables
+import numpy as np
+import ctypes
+
+
+_lib = ctypes.CDLL({get_config().compiled_lib_loc})
+
+    """))
+
     for filename in files:
         with open(filename, 'r') as f:
             # preserves line numbers
             code = src.util.remove_comments(f.read())
         try:
-            # todo: generalize this general target for more stuff like python-outputs
+
             defs_for_header_filename = os.path.join(get_config().target_header_loc, filename.split('/')[-1].split('.')[0]+"_PPDS_GENERATED_DEFS_FOR_HEADER.h")
-            with open(defs_for_header_filename, "w") as f:
-                f.write("\n// todo: include guards, notice etc\n")
-                handle_file(code, f)
-                f.write("\n// todo: include guards, notice etc\n")
+            defs_for_header = PPDSTargetFile(f"defs_for_{filename}", defs_for_header_filename)
+            defs_for_header.append("\n// todo: include guards, notice etc\n")
+
+
+            handle_file(code, defs_for_header, py_wrapper_file)
+
+
+            defs_for_header.append("\n// todo: include guards, notice etc\n")
+            defs_for_header.flush()
 
         except PPDSParseError as e:
             print(
@@ -85,3 +105,4 @@ def main():
         """)
             raise
 
+    py_wrapper_file.flush()

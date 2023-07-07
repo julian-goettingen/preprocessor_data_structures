@@ -5,7 +5,7 @@ all:
 clean:
 	rm -f ppds_interface_desc/*
 	rm -f ppds_target_headers/*
-	rm -f ./a.out
+	rm -f lib.so
 
 prepare:
 	python3 ./../../../script.py

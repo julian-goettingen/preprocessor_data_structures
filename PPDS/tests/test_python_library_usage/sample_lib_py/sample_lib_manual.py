@@ -1,16 +1,19 @@
 import pygen_usables
 import numpy as np
 import ctypes
+import os.path
+import pathlib
 
-_lib = ctypes.CDLL('../sample_lib/lib.so')
+_lib = ctypes.CDLL(os.path.join(pathlib.Path(__file__).parent.parent, 'sample_lib/lib.so'))
 
 def hello_int(num):
     return _lib.hello_int_def(num)
 
+# ctypes.c_
 def arr_sum(arr : np.ndarray):
-    arr_ptr = np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS")
-    print(arr_ptr)
-    _lib.arr_sum_def.argtypes = [arr_ptr, ctypes.c_int]
+    ptr = np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS", shape=(3,))
+    len = ctypes.c_int
+    _lib.arr_sum_def.argtypes = [ptr, len]
     return _lib.arr_sum_def(arr, arr.shape[0])
 
 

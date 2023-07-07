@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import List
 import os.path
 
@@ -6,54 +8,37 @@ from src.parse_err import PPDSParseError
 
 
 
-class DefHeaderSink:
-    def __init__(self, name):
-        self.name = name
-        self.sb = []
-
-    def absorb(self, instance: PreprocessorDataClassInstance):
-
-        self.sb.append(instance.render_def())
-
-    def as_string(self) -> str:
-        return "\n".join(self.sb)
-
-
-class UndefHeaderSink:
-    def __init__(self, name):
-        self.sb = []
-        self.name = name
-
-    def absorb(self, instance: PreprocessorDataClassInstance):
-
-        self.sb.append(instance.render_undef())
-
-    def as_string(self) -> str:
-        return "\n".join(self.sb)
-
 
 class PPDSTargetFile:
 
     # minimal idea.
     # open:
-    # add header/footer or frame around appends
+    # add header/footer or frame around appends -> sections for stuff like classes maybe?
     # only write if necessary
     # better error handling if write is not possible (missing dir?)
 
-    def __init__(self, name: str, path: str):
-        self.name = name
-        self.path = path
-        self.content = []
+    def __init__(self, name: str, path: str | None):
+        self._name = name
+        self._path = path
+        self._content = []
 
     def append(self, s: str):
         print('appending ', s)
-        self.content.append(s)
+        self._content.append(s)
+
+    def get_name(self):
+        return self._name
 
     def flush(self):
-        print(f'flushing file {self.path} with content: {self.content}')
-        with open(self.path, "w") as f:
-            for c in self.content:
-                f.write(c)
+        if self._path is not None:
+            print(f'flushing file {self._path} with content: {self._content}')
+            with open(self._path, "w") as f:
+                for c in self._content:
+                    f.write(c)
+        else:
+            print(f"not flushing file with content: {self._content} because the path is none")
+
+
 
 
 def undef_filename_from_name(name: str):
@@ -85,8 +70,8 @@ class HeaderStack:
         def_file = self._defs.pop()
         undef_file = self._undefs.pop()
 
-        if name != undef_file.name:
-            raise PPDSParseError(f'Closing wrong scope. Expected {undef_file.name}, got {name}')
+        if name != undef_file.get_name():
+            raise PPDSParseError(f'Closing wrong scope. Expected {undef_file.get_name()}, got {name}')
 
         def_file.flush()
         undef_file.flush()

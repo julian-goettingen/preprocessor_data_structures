@@ -17,6 +17,7 @@ class PPDSConfig:
     interface_desc_loc: str | None
     pygen_target_loc: str | None
     pygen_usables_loc: str | None
+    compiled_lib_loc: str | None
     search_paths: List[str]
     global_default_params: Dict[str, str]
 
@@ -46,6 +47,7 @@ xpected_keys = {
     "global_default_params",
     "pygen_target_loc",
     "pygen_usables_loc",
+    "compiled_lib_loc",
 }
 
 
@@ -56,6 +58,7 @@ def _read() -> PPDSConfig:
         "pygen_target_loc": None,
         "pygen_usables_loc": None,
         "interface_desc_loc": None,
+        "compiled_lib_loc": None,
     }
 
     try:
@@ -91,6 +94,11 @@ def _read() -> PPDSConfig:
     _ensure_valid_dir(config, "interface_desc_loc", allow_none=True)
     _ensure_valid_dir(config, "pygen_target_loc", allow_none=True)
     _ensure_valid_dir(config, "pygen_usables_loc", allow_none=True)
+    # no exists-check for compiled_lib_loc
+    # for compiled_lib_loc, it is OK if it does not exist since it will be created
+    # in the compile-step which is after this tool is completely finished
+    # warn if it does not look like a file?
+
 
     if config["pygen_target_loc"] is not None and config["pygen_usables_loc"] is None:
         print(
@@ -109,7 +117,7 @@ def _read() -> PPDSConfig:
 
     if not isinstance(config["search_paths"], list):
         print(
-            "search path must be a list of valid paths (can be a list with a single element, and can use glob-style matchers * and **)"
+            "search path must be a list of valid paths (you can also use glob-style matchers * and **)"
         )
         exit(1)
 
@@ -123,7 +131,7 @@ def _read() -> PPDSConfig:
         {e}
         """
         )
-    except:
+    except Exception as e:
         print("failed to understand config-file. Reason: ", e)
         exit(1)
 

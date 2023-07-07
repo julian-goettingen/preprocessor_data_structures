@@ -4,7 +4,7 @@ from typing import Dict, Any, Tuple, TextIO
 import re
 
 
-from src.sinks import HeaderStack
+from src.sinks import HeaderStack, PPDSTargetFile
 
 from src.PreprocessorDataClass import (
     PreprocessorDataClass,
@@ -59,7 +59,7 @@ class PPDSKnownClasses:
         ...
 
 
-def handle_file(src, defs_for_header_file: TextIO, _get_config=get_config):
+def handle_file(src, defs_for_header_file: PPDSTargetFile, py_wrapper_file: PPDSTargetFile, _get_config=get_config):
 
     conf = _get_config()
 
@@ -95,7 +95,8 @@ def handle_file(src, defs_for_header_file: TextIO, _get_config=get_config):
 
             print('added instance: ', inst)
             headers.new_instance(inst)
-            defs_for_header_file.write(inst.render_defs_for_header())
+            defs_for_header_file.append(inst.render_defs_for_header())
+            # py_wrapper_file.append(inst.render_py_wrapper())
 
             continue
         target_def_filename = m.group("target_def_filename")
