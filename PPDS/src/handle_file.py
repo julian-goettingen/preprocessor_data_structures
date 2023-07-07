@@ -96,7 +96,7 @@ def handle_file(src, defs_for_header_file: PPDSTargetFile, py_wrapper_file: PPDS
             print('added instance: ', inst)
             headers.new_instance(inst)
             defs_for_header_file.append(inst.render_defs_for_header())
-            # py_wrapper_file.append(inst.render_py_wrapper())
+            py_wrapper_file.append(inst.render_py_wrapper())
 
             continue
         target_def_filename = m.group("target_def_filename")

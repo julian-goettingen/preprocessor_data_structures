@@ -93,6 +93,9 @@ class PreprocessorDataClassInstance:
     def render_defs_for_header(self) -> str:
         return self.klass.render_defs_for_header(self.argdict, self.declare_site)
 
+    def render_py_wrapper(self) -> str:
+        return self.klass.render_py_wrapper(self.argdict, self.declare_site)
+
 
 class PreprocessorDataClass:
     """
@@ -115,6 +118,9 @@ class PreprocessorDataClass:
             source_string
         )
         self.defs_for_header_template = template_factory.get_defs_for_header_template_from_source_string(
+            source_string
+        )
+        self.py_wrapper_template = template_factory.get_py_wrapper_template_from_source_string(
             source_string
         )
         self.posargs, self.kwargs = template_factory.get_args_from_source_string(
@@ -172,6 +178,14 @@ class PreprocessorDataClass:
             self.undef_template, argdict, declare_site=declare_site
         )
         return res
+
+    def render_py_wrapper(self, argdict, declare_site):
+        if self.py_wrapper_template is not None:
+            res = util.header_from_template(
+                self.py_wrapper_template, argdict, declare_site=declare_site
+            )
+            return res
+        return ""
 
     def render_defs_for_header(self, argdict, declare_site):
         if self.defs_for_header_template is not None:

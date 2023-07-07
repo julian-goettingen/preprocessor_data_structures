@@ -27,6 +27,7 @@ def get_env(local_get_config=src.config.get_config):
 
 
 DEFS_FOR_HEADER_REX = re.compile(r"/\*\s+PPDS_DEFS_FOR_HEADER:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
+PY_WRAPPER_REX = re.compile(r"/\*\s+PPDS_PY_WRAPPER:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
 DEF_GETTER_REX = re.compile(r"/\*\s+PPDS_DEF:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
 UNDEF_GETTER_REX = re.compile(r"/\*\s+PPDS_UNDEF:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
 ARGS_GETTER_REX = re.compile(r"/\*\s+PPDS_ARGS:\s+(.*?)\*/", re.MULTILINE | re.DOTALL)
@@ -44,6 +45,8 @@ def get_template_from_source(source_filename):
         template = re.search(template_getter_rex, f.read())
 
     return template.group(1)
+
+
 
 
 def get_constructors_from_source_string(source_string):
@@ -142,6 +145,19 @@ def get_undef_template_from_source_string(source_string):
     template = re.search(UNDEF_GETTER_REX, source_string)
     if not template:
         raise PPDSParseError("Expected header-file to contain an UNDEF-template.")
+    try:
+        return get_env().from_string(template.group(1))
+    except jinja2.exceptions.UndefinedError as e:
+        print(e)
+        print(e.__dict__)
+        raise PPDSParseError("header-file contains undefined:")
+
+def get_py_wrapper_template_from_source_string(source_string):
+
+    template = re.search(PY_WRAPPER_REX, source_string)
+    if not template:
+        # TODO: report close match?
+        return None # this one is optional.
     try:
         return get_env().from_string(template.group(1))
     except jinja2.exceptions.UndefinedError as e:
