@@ -10,10 +10,10 @@ def hello_int(num):
     return _lib.hello_int_def(num)
 
 # ctypes.c_
+ptr = np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS", shape=(3,))
+len = ctypes.c_int
+_lib.arr_sum_def.argtypes = [ptr, len]
 def arr_sum(arr : np.ndarray):
-    ptr = np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS", shape=(3,))
-    len = ctypes.c_int
-    _lib.arr_sum_def.argtypes = [ptr, len]
     return _lib.arr_sum_def(arr, arr.shape[0])
 
 

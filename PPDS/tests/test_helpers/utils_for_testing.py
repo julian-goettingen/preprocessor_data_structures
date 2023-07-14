@@ -23,7 +23,11 @@ compiler_list = {
 
 def find_dirs():
 
-    cdirs = list(map(lambda p: os.path.dirname(p), glob("tests/zz_full_c_project_examples/**/main.c")))
+    pattern = "tests/zz_full_c_project_examples/**/main.c"
+    cdirs = list(map(lambda p: os.path.dirname(p), glob(pattern)))
+
+    if not cdirs:
+        raise ValueError(f"found no projects for test-build. glob-pattern is {pattern}, working dir is {os.getcwd()}")
 
     return cdirs
 

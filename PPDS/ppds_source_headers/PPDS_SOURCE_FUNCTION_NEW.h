@@ -60,6 +60,21 @@ PPDS_FUNCTION_{{name}};
 /* PPDS_UNDEF:
 */
 
+/* PPDS_PY_WRAPPER:
+# prepare every argument here
+{% for arg in var_args %}
+# {{arg.__dict__}} # this is just # {'_value': 'ARR', 'ptype': 'ARR1D'} # sadly
+# want something like the following:
+# ptr = np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS", shape=(3,))
+# len = ctypes.c_int
+{{arg}}_ = definition_of_{{arg}} # hier das richtige erzeugen dann
+{% endfor %}
+_lib.{{name}}_def.argtypes = [{% for arg in var_args %}{{arg}}_, {% endfor %}]
+def {{name}}({%- for arg in var_args -%}{{arg}}{{", " if not loop.last else ""}}{%- endfor -%}):
+    return _lib.{{name}}_def({%- for arg in var_args -%}{{arg}}{{", " if not loop.last else ""}}{%- endfor -%})
+*/
+
+
 #define PPDS_DECLARE_FUNCTION_NEW(name, ...) PPDS_FUNCTION_##name
 
 
